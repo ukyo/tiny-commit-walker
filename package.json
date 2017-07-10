@@ -1,6 +1,6 @@
 {
   "name": "git-miru-kun",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "git miru kun",
   "main": "index.js",
   "scripts": {
