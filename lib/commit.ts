@@ -20,7 +20,7 @@ export class Commit {
     const [type, size] = head.split(/\s/);
     this.size = +size;
     this.body = rest.join('\u0000');
-    const m = this.body.match(/^parent\s[a-f0-9]{40}/gm);
+    const m = this.body.match(/^parent\s[a-f0-9]{40}/g);
     this.parentHashs = m ? m.map(s => s.split(/\s/).pop()) as string[] : [];
   }
 
