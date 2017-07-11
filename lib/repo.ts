@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as util from 'util';
+import * as path from 'path';
 import { Commit, readCommit, readCommitSync } from './commit';
 
 const statAsync = util.promisify(fs.stat);
@@ -23,13 +24,13 @@ export class Repository {
   gitRoot: string;
 
   constructor(repositoryPath: string) {
-    this.gitRoot = `${repositoryPath}/.git`;
+    this.gitRoot = path.join(repositoryPath, '.git');
   }
 
   async readHead(): Promise<HEAD> {
-    const s = (await readFileAsync(this.gitRoot + '/HEAD', 'utf8')).trim();
+    const s = (await readFileAsync(path.join(this.gitRoot, 'HEAD'), 'utf8')).trim();
     if (s.startsWith('ref')) {
-      const name = s.split('/').pop() as string;
+      const name = s.split(path.sep).pop() as string;
       return {
         type: 'branch',
         branch: {
@@ -46,9 +47,9 @@ export class Repository {
   }
 
   readHeadSync(): HEAD {
-    const s = fs.readFileSync(this.gitRoot + '/HEAD', 'utf8').trim();
+    const s = fs.readFileSync(path.join(this.gitRoot, 'HEAD'), 'utf8').trim();
     if (s.startsWith('ref')) {
-      const name = s.split('/').pop() as string;
+      const name = s.split(path.sep).pop() as string;
       return {
         type: 'branch',
         branch: {
@@ -65,7 +66,7 @@ export class Repository {
   }
 
   private async _readBranchesOrTags(dir: string): Promise<(Tag | Branch)[]> {
-    const names: string[] = await readDirAsync(`${this.gitRoot}/refs/${dir}`);
+    const names: string[] = await readDirAsync(path.join(this.gitRoot, 'refs', dir));
     return await Promise.all(names.map(async name => {
       return {
         name,
@@ -75,7 +76,7 @@ export class Repository {
   }
 
   private _readBranchesOrTagsSync(dir: string): (Tag | Branch)[] {
-    const names = fs.readdirSync(`${this.gitRoot}/refs/${dir}`);
+    const names = fs.readdirSync(path.join(this.gitRoot, 'refs', dir));
     return names.map(name => {
       return {
         name,
@@ -85,12 +86,12 @@ export class Repository {
   }
 
   private async _readCommitByBranchOrTag(dir: string, name: string): Promise<Commit> {
-    const hash = (await readFileAsync(`${this.gitRoot}/refs/${dir}/${name}`, 'utf8')).trim();
+    const hash = (await readFileAsync(path.join(this.gitRoot, 'refs', dir, name), 'utf8')).trim();
     return await readCommit(this.gitRoot, hash);
   }
 
   private _readCommitByBranchOrTagSync(dir: string, name: string): Commit {
-    const hash = fs.readFileSync(`${this.gitRoot}/refs/${dir}/${name}`, 'utf8').trim();
+    const hash = fs.readFileSync(path.join(this.gitRoot, 'refs', dir, name), 'utf8').trim();
     return readCommitSync(this.gitRoot, hash);
   }
 

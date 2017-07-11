@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as util from 'util';
 import * as zlib from 'zlib';
+import * as path from 'path';
 
 const readFileAsync = util.promisify(fs.readFile);
 const inflateAsync = util.promisify(zlib.inflate);
@@ -49,14 +50,18 @@ export class Commit {
   }
 }
 
+function getObjectPath(gitRoot: string, hash: string) {
+  return path.join(gitRoot, objects, hash.replace(/^(.{2})(.{38})$/, `$1${path.sep}$2`)});
+}
+
 export async function readCommit(gitRoot: string, hash: string): Promise<Commit> {
-  const deflatedData = await readFileAsync(`${gitRoot}/objects/${hash.replace(/^(.{2})(.{38})$/, '$1/$2')}`);
+  const deflatedData = await readFileAsync(getObjectPath(gitRoot, hash));
   const data = (await inflateAsync(deflatedData)).toString('utf8');
   return new Commit(gitRoot, hash, data);
 }
 
 export function readCommitSync(gitRoot: string, hash: string): Commit {
-  const deflatedData = fs.readFileSync(`${gitRoot}/objects/${hash.replace(/^(.{2})(.{38})$/, '$1/$2')}`);
+  const deflatedData = fs.readFileSync(getObjectPath(gitRoot, hash));
   const data = zlib.inflateSync(deflatedData).toString('utf8');
   return new Commit(gitRoot, hash, data);
 }

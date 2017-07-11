@@ -11,5 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^8.0.10"
+  },
+  "engines": {
+    "node": ">=8.0.0"
   }
 }
