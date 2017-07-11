@@ -1,11 +1,11 @@
 import * as fs from 'fs';
-import * as util from 'util';
+import * as promisify from 'util.promisify';
 import * as path from 'path';
 import { Commit, readCommit, readCommitSync } from './commit';
 
-const statAsync = util.promisify(fs.stat);
-const readFileAsync = util.promisify(fs.readFile);
-const readDirAsync = util.promisify(fs.readdir);
+const statAsync = promisify(fs.stat);
+const readFileAsync = promisify(fs.readFile);
+const readDirAsync = promisify(fs.readdir);
 
 export interface Branch {
   name: string;

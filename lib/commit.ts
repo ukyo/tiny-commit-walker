@@ -1,10 +1,10 @@
 import * as fs from 'fs';
-import * as util from 'util';
+import * as promisify from 'util.promisify';
 import * as zlib from 'zlib';
 import * as path from 'path';
 
-const readFileAsync = util.promisify(fs.readFile);
-const inflateAsync = util.promisify(zlib.inflate);
+const readFileAsync = promisify(fs.readFile);
+const inflateAsync = promisify(zlib.inflate);
 
 export class Commit {
   parentHashs: string[];
@@ -21,7 +21,7 @@ export class Commit {
     const [type, size] = head.split(/\s/);
     this.size = +size;
     this.body = rest.join('\u0000');
-    const m = this.body.match(/^parent\s[a-f0-9]{40}/g);
+    const m = this.body.match(/^parent\s[a-f0-9]{40}/gm);
     this.parentHashs = m ? m.map(s => s.split(/\s/).pop()) as string[] : [];
   }
 
@@ -51,7 +51,7 @@ export class Commit {
 }
 
 function getObjectPath(gitRoot: string, hash: string) {
-  return path.join(gitRoot, objects, hash.replace(/^(.{2})(.{38})$/, `$1${path.sep}$2`)});
+  return path.join(gitRoot, 'objects', hash.replace(/^(.{2})(.{38})$/, `$1${path.sep}$2`));
 }
 
 export async function readCommit(gitRoot: string, hash: string): Promise<Commit> {
