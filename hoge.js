@@ -1,10 +1,10 @@
-const gd = require('./lib/git-dir');
+const gd = require('./index');
 (async () => {
-  const d = await gd.readGitDir('.git');
-  const bs = await d.readBranches();
-  console.log(bs);
-  const h = await d.readHead();
-  console.log(h.commit);
-  const c = await h.commit.readParent();
+  const repo = new gd.Repository('.');
+  const bs = await repo.readBranches();
+  // console.log(bs);
+  const h = await repo.readHead();
+  // console.log(h.branch.commit.baseParentHash);
+  const c = await h.branch.commit.walk();
   console.log(c);
 })();
