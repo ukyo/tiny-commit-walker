@@ -12,7 +12,10 @@ export interface Branch {
   commit: Commit;
 }
 
-export type Tag = Branch;
+export interface Tag {
+  name: string;
+  commit: Commit;
+}
 
 export interface HEAD {
   type: 'branch' | 'commit';
