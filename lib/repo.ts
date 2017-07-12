@@ -31,7 +31,7 @@ export class Repository {
     try {
       const stat = fs.statSync(this.gitRoot);
       if (stat.isFile()) {
-        this.gitRoot = fs.readFileSync(this.gitRoot, 'utf8').split(/\s/).pop() as string;
+        this.gitRoot = path.resolve(repositoryPath, fs.readFileSync(this.gitRoot, 'utf8').trim().split(/\s/).pop()) as string;
       }
     } catch (err) { }
   }
