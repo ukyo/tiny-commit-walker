@@ -81,7 +81,7 @@
     <span class="hljs-built_in">console</span>.log(commit.hash);
     commit = <span class="hljs-keyword">await</span> commit.walk(); <span class="hljs-comment">// default parameter of commit.walk is base parent hash.</span>
   }
-});
+})();
 
 <span class="hljs-comment">// or</span>
 
@@ -96,6 +96,8 @@
   commit = commit.walkSync();
 }
 </code></pre>
+				<h1 id="documentation">Documentation</h1>
+				<p><a href="https://ukyo.github.io/tiny-commit-walker">https://ukyo.github.io/tiny-commit-walker</a></p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">

@@ -7,9 +7,13 @@
   "scripts": {
     "test": "ava tests --verbose",
     "build": "tsc",
-    "watch": "concurrently 'npm run build -- -w' 'npm test -- -w'",
+    "watch:build": "npm run build -- -w",
+    "watch:test": "npm run test -- -w",
+    "watch": "run-p watch:*",
     "prepublish": "npm run build",
-    "docs": "typedoc --out docs --excludeNotExported"
+    "docs:build": "typedoc --out docs --excludeNotExported",
+    "docs:touch-nojeykll": "nodetouch docs/.nojekyll",
+    "docs": "run-s docs:build docs:touch-nojeykll"
   },
   "author": "Syu Kato",
   "license": "MIT",
@@ -26,7 +30,8 @@
   },
   "devDependencies": {
     "ava": "^0.20.0",
-    "concurrently": "^3.5.0",
+    "npm-run-all": "^4.0.2",
+    "touch": "^3.1.0",
     "typedoc": "^0.7.1",
     "typescript": "^2.4.1"
   }
