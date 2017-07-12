@@ -28,6 +28,12 @@ export class Repository {
 
   constructor(repositoryPath: string) {
     this.gitRoot = path.join(repositoryPath, '.git');
+    try {
+      const stat = fs.statSync(this.gitRoot);
+      if (stat.isFile()) {
+        this.gitRoot = fs.readFileSync(this.gitRoot, 'utf8').split(/\s/).pop() as string;
+      }
+    } catch (err) { }
   }
 
   async readHead(): Promise<HEAD> {
