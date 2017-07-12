@@ -1,52 +1,251 @@
 import test from 'ava';
-import * as lib from './index';
+import { Commit, Repository } from './index';
 
-test('funcs are exported', (t) => {
-  t.truthy(lib);
-  t.truthy(lib.Commit);
-  t.truthy(lib.Repository);
-  t.truthy(lib.readCommit);
-  t.truthy(lib.readCommitSync);
-});
+const repo1 = new Repository('fixture/repo1');
+const repo2 = new Repository('fixture/repo2');
 
-test('new Repository(repo)', t => {
-  const repo = new lib.Repository('fixture');
-  t.is(repo.gitRoot, 'fixture/.git');
-});
-
-const repo = new lib.Repository('fixture');
-
-test('repo.readBranches()', async t => {
-  const branches = await repo.readBranches();
+test('read branches', async t => {
+  const branches = await repo1.readBranches();
+  t.is(branches.length, 5);
   t.truthy(branches.find(b => b.name === 'master'));
+  t.is(branches.find(b => b.name === 'master').commit.hash, (await repo1.readCommitByBranch('master')).hash);
   t.truthy(branches.find(b => b.name === 'a'));
+  t.is(branches.find(b => b.name === 'a').commit.hash, (await repo1.readCommitByBranch('a')).hash);
   t.truthy(branches.find(b => b.name === 'b'));
+  t.is(branches.find(b => b.name === 'b').commit.hash, (await repo1.readCommitByBranch('b')).hash);
   t.truthy(branches.find(b => b.name === 'c'));
+  t.is(branches.find(b => b.name === 'c').commit.hash, (await repo1.readCommitByBranch('c')).hash);
   t.truthy(branches.find(b => b.name === 'd'));
+  t.is(branches.find(b => b.name === 'd').commit.hash, (await repo1.readCommitByBranch('d')).hash);
 });
 
-test('repo.readHead()', async t => {
-  const head = await repo.readHead();
+test('read branches sync', t => {
+  const branches = repo1.readBranchesSync();
+  t.is(branches.length, 5);
+  t.truthy(branches.find(b => b.name === 'master'));
+  t.is(branches.find(b => b.name === 'master').commit.hash, (repo1.readCommitByBranchSync('master')).hash);
+  t.truthy(branches.find(b => b.name === 'a'));
+  t.is(branches.find(b => b.name === 'a').commit.hash, (repo1.readCommitByBranchSync('a')).hash);
+  t.truthy(branches.find(b => b.name === 'b'));
+  t.is(branches.find(b => b.name === 'b').commit.hash, (repo1.readCommitByBranchSync('b')).hash);
+  t.truthy(branches.find(b => b.name === 'c'));
+  t.is(branches.find(b => b.name === 'c').commit.hash, (repo1.readCommitByBranchSync('c')).hash);
+  t.truthy(branches.find(b => b.name === 'd'));
+  t.is(branches.find(b => b.name === 'd').commit.hash, (repo1.readCommitByBranchSync('d')).hash);
+});
+
+test('read HEAD that is ref to branch', async t => {
+  const head = await repo1.readHead();
   t.is(head.type, 'branch');
   t.truthy(head.branch);
   t.is(head.branch.name, 'master');
   t.truthy(head.branch.commit);
 });
 
-test('commit.walk', async t => {
-  const branches = await repo.readBranches();
-  const head = await repo.readHead();
+test('read HEAD that is ref to branch sync', t => {
+  const head = repo1.readHeadSync();
+  t.is(head.type, 'branch');
+  t.truthy(head.branch);
+  t.is(head.branch.name, 'master');
+  t.truthy(head.branch.commit);
+});
+
+test('read tags', async t => {
+  const tags = await repo2.readTags();
+  t.is(tags.length, 3);
+  t.truthy(tags.find(t => t.name === 'v1'));
+  t.is(tags.find(t => t.name === 'v1').commit.hash, (await repo2.readCommitByTag('v1')).hash);
+  t.truthy(tags.find(t => t.name === 'v2'));
+  t.is(tags.find(t => t.name === 'v2').commit.hash, (await repo2.readCommitByTag('v2')).hash);
+  t.truthy(tags.find(t => t.name === 'v3'));
+  t.is(tags.find(t => t.name === 'v3').commit.hash, (await repo2.readCommitByTag('v3')).hash);
+});
+
+test('read tags sync', t => {
+  const tags = repo2.readTagsSync();
+  t.is(tags.length, 3);
+  t.truthy(tags.find(t => t.name === 'v1'));
+  t.is(tags.find(t => t.name === 'v1').commit.hash, (repo2.readCommitByTagSync('v1')).hash);
+  t.truthy(tags.find(t => t.name === 'v2'));
+  t.is(tags.find(t => t.name === 'v2').commit.hash, (repo2.readCommitByTagSync('v2')).hash);
+  t.truthy(tags.find(t => t.name === 'v3'));
+  t.is(tags.find(t => t.name === 'v3').commit.hash, (repo2.readCommitByTagSync('v3')).hash);
+});
+
+test('read HEAD that is ref to commit hash', async t => {
+  const head = await repo2.readHead();
+  t.is(head.type, 'commit');
+  t.truthy(head.commit);
+  t.true(head.commit.hash.startsWith('716debc'));
+});
+
+test('read HEAD that is ref to commit hash sync', t => {
+  const head = repo2.readHeadSync();
+  t.is(head.type, 'commit');
+  t.truthy(head.commit);
+  t.true(head.commit.hash.startsWith('716debc'));
+});
+
+/*
+current branch is master.
+* b1c1409 d3
+* fa6ba37 d2
+* 2ca5ca9 d1
+| *-.   8615421 Merge branches 'a' and 'c'
+| |\ \
+| |_|/
+|/| |
+* | | 27ed78c c3
+* | | 25368be c2
+* | | b282295 c1
+| | *   9cf93cb Merge branch 'b' into a
+| | |\
+| | | * 1361abe b2
+| | | * d19f4a6 b1
+| | * | b413700 a3
+| | |/
+| | * 5c40684 a2
+| | * a7546ba a1
+| |/
+|/|
+| * 90355ed commit3
+|/
+* 3c07e56 commit2
+* fe65269 commit1
+
+*/
+test('walk commits', async t => {
+  const branches = await repo1.readBranches();
+  const head = await repo1.readHead();
   let commit = head.branch.commit;
-  t.is(commit.hash, '8615421ca60a7d5d1cd19bf97bd100e19cb0dd47');
-  t.deepEqual(commit.parentHashs, [
-    '90355ed8dbd6458efb0e8191c958911fb26f1d94',
-    '9cf93cbe343a40cb6f4dcb7c54c0fb499eb9f217',
-    '27ed78cdfce91731cc270834e547006e68c160a4',
-  ]);
+  // master
+  t.is(head.branch.name, 'master');
+  t.true(commit.hash.startsWith('8615421'));
+  t.is(commit.parentHashs.length, 3);
   t.true(commit.isMergeCommit);
-  t.is(commit.baseParentHash, '90355ed8dbd6458efb0e8191c958911fb26f1d94');
-  commit = await commit.walk(); t.is(commit.hash, '90355ed8dbd6458efb0e8191c958911fb26f1d94');
-  commit = await commit.walk(); t.is(commit.hash, '3c07e56a57f63a994552a657a8bee1095d95da9c');
-  commit = await commit.walk(); t.is(commit.hash, 'fe65269f725952a1913e82bd078ecb95c1c719ac');
+  t.true(commit.parentHashs[0].startsWith('90355ed'), 'base parent commit');
+  t.true(commit.parentHashs[1].startsWith('9cf93cb'), '"a" branch');
+  t.true(commit.parentHashs[2].startsWith('27ed78c'), '"c" branch');
+  t.true(commit.isMergeCommit);
+  t.true(commit.baseParentHash.startsWith('90355ed'));
+  t.true((await commit.walk(commit.parentHashs[1])).hash.startsWith('9cf93cb'), 'walk to "a" branch');
+  t.true((await commit.walk(commit.parentHashs[2])).hash.startsWith('27ed78c'), 'walk to "c" branch');
+  t.is(commit.baseParentHash, commit.parentHashs[0]);
+  const c = await commit.walk(commit.baseParentHash);
+  commit = await commit.walk();
+  t.deepEqual(commit, c, 'default paramater of commit.walk is commit.baseParentHash');
+  t.true(commit.hash.startsWith('90355ed')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('3c07e56')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('fe65269'));
   t.not(commit.hasParents);
+  // a
+  commit = branches.find(b => b.name === 'a').commit;
+  t.true(commit.hash.startsWith('9cf93cb'));
+  t.is(commit.parentHashs.length, 2);
+  t.true(commit.isMergeCommit);
+  t.true(commit.parentHashs[0].startsWith('b413700'));
+  t.true(commit.parentHashs[1].startsWith('1361abe'));
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('b413700')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('5c40684')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('a7546ba')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('3c07e56'));
+  // b
+  commit = branches.find(b => b.name === 'b').commit;
+  t.true(commit.hash.startsWith('1361abe'));
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('d19f4a6')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('5c40684'));
+  // c
+  commit = branches.find(b => b.name === 'c').commit;
+  t.true(commit.hash.startsWith('27ed78c')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('25368be')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('b282295')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('3c07e56'));
+  // d
+  commit = branches.find(b => b.name === 'd').commit;
+  t.true(commit.hash.startsWith('b1c1409')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('fa6ba37')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('2ca5ca9')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('27ed78c'));
+});
+
+test('walk commits sync', t => {
+  const branches = repo1.readBranchesSync();
+  const head = repo1.readHeadSync();
+  let commit = head.branch.commit;
+  // master
+  t.is(head.branch.name, 'master');
+  t.true(commit.hash.startsWith('8615421'));
+  t.is(commit.parentHashs.length, 3);
+  t.true(commit.isMergeCommit);
+  t.true(commit.parentHashs[0].startsWith('90355ed'), 'base parent commit');
+  t.true(commit.parentHashs[1].startsWith('9cf93cb'), '"a" branch');
+  t.true(commit.parentHashs[2].startsWith('27ed78c'), '"c" branch');
+  t.true(commit.isMergeCommit);
+  t.true(commit.baseParentHash.startsWith('90355ed'));
+  t.true((commit.walkSync(commit.parentHashs[1])).hash.startsWith('9cf93cb'), 'walk to "a" branch');
+  t.true((commit.walkSync(commit.parentHashs[2])).hash.startsWith('27ed78c'), 'walk to "c" branch');
+  t.is(commit.baseParentHash, commit.parentHashs[0]);
+  const c = commit.walkSync(commit.baseParentHash);
+  commit = commit.walkSync();
+  t.deepEqual(commit, c, 'default paramater of commit.walk is commit.baseParentHash');
+  t.true(commit.hash.startsWith('90355ed')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('3c07e56')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('fe65269'));
+  t.not(commit.hasParents);
+  // a
+  commit = branches.find(b => b.name === 'a').commit;
+  t.true(commit.hash.startsWith('9cf93cb'));
+  t.is(commit.parentHashs.length, 2);
+  t.true(commit.isMergeCommit);
+  t.true(commit.parentHashs[0].startsWith('b413700'));
+  t.true(commit.parentHashs[1].startsWith('1361abe'));
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('b413700')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('5c40684')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('a7546ba')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('3c07e56'));
+  // b
+  commit = branches.find(b => b.name === 'b').commit;
+  t.true(commit.hash.startsWith('1361abe'));
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('d19f4a6')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('5c40684'));
+  // c
+  commit = branches.find(b => b.name === 'c').commit;
+  t.true(commit.hash.startsWith('27ed78c')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('25368be')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('b282295')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('3c07e56'));
+  // d
+  commit = branches.find(b => b.name === 'd').commit;
+  t.true(commit.hash.startsWith('b1c1409')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('fa6ba37')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('2ca5ca9')); t.not(commit.isMergeCommit);
+  commit = commit.walkSync();
+  t.true(commit.hash.startsWith('27ed78c'));
 });
