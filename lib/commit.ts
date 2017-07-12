@@ -37,7 +37,7 @@ export class Commit {
     return this.parentHashs[0];
   }
 
-  get mergedParents() {
+  get mergedParentHashes() {
     return this.parentHashs.slice(1);
   }
   

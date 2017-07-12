@@ -132,6 +132,8 @@ test('walk commits', async t => {
   t.true(commit.parentHashs[2].startsWith('27ed78c'), '"c" branch');
   t.true(commit.isMergeCommit);
   t.true(commit.baseParentHash.startsWith('90355ed'));
+  t.true(commit.mergedParentHashes[0].startsWith('9cf93cb'));
+  t.true(commit.mergedParentHashes[1].startsWith('27ed78c'));
   t.true((await commit.walk(commit.parentHashs[1])).hash.startsWith('9cf93cb'), 'walk to "a" branch');
   t.true((await commit.walk(commit.parentHashs[2])).hash.startsWith('27ed78c'), 'walk to "c" branch');
   t.is(commit.baseParentHash, commit.parentHashs[0]);
