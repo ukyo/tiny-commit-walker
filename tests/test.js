@@ -4,6 +4,9 @@ import { Commit, Repository } from '../index';
 
 const repo1 = new Repository(path.join(__dirname, 'fixture', 'repo1'));
 const repo2 = new Repository(path.join(__dirname, 'fixture', 'repo2'));
+repo1.gitRoot = path.join(__dirname, 'fixture', 'repo1-dot-git');
+repo2.gitRoot = path.join(__dirname, 'fixture', 'repo2-dot-git');
+
 
 test('read branches', async t => {
   const branches = await repo1.readBranches();
