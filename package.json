@@ -8,7 +8,8 @@
     "test": "ava tests --verbose",
     "build": "tsc",
     "watch": "concurrently 'npm run build -- -w' 'npm test -- -w'",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "docs": "typedoc --out docs --excludeNotExported"
   },
   "author": "Syu Kato",
   "license": "MIT",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "ava": "^0.20.0",
     "concurrently": "^3.5.0",
+    "typedoc": "^0.7.1",
     "typescript": "^2.4.1"
   }
 }
