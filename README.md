@@ -41,3 +41,7 @@ while (commit.hasParents) {
   commit = commit.walkSync();
 }
 ```
+
+# Documentation
+
+https://ukyo.github.io/tiny-commit-walker
