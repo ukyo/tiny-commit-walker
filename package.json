@@ -1,23 +1,31 @@
 {
-  "name": "git-miru-kun",
-  "version": "0.0.4",
-  "description": "git miru kun",
+  "name": "tiny-commit-walker",
+  "version": "0.1.0",
+  "description": "tiny commit walker",
   "main": "index.js",
   "types": "lib/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ava tests --verbose",
+    "build": "tsc",
+    "watch": "concurrently 'npm run build -- -w' 'npm test -- -w'",
+    "prepublish": "npm run build"
   },
-  "author": "ukyo",
-  "license": "ISC",
+  "author": "Syu Kato",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ukyo/tiny-commit-walker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ukyo/tiny-commit-walker/issues"
+  },
   "dependencies": {
     "@types/node": "^8.0.10",
     "util.promisify": "^1.0.0"
   },
-  "engines": {
-    "node": ">=8.0.0"
-  },
   "devDependencies": {
     "ava": "^0.20.0",
+    "concurrently": "^3.5.0",
     "typescript": "^2.4.1"
   }
 }
