@@ -26,7 +26,7 @@ import { Repository } from 'tiny-commit-walker';
     console.log(commit.hash);
     commit = await commit.walk(); // default parameter of commit.walk is base parent hash.
   }
-});
+})();
 
 // or
 
