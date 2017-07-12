@@ -7,7 +7,7 @@ const readFileAsync = promisify(fs.readFile);
 const inflateAsync = promisify(zlib.inflate);
 
 export class Commit {
-  parentHashs: string[];
+  parentHashes: string[];
   type: string;
   size: number;
   body: string;
@@ -22,23 +22,23 @@ export class Commit {
     this.size = +size;
     this.body = rest.join('\u0000');
     const m = this.body.match(/^parent\s[a-f0-9]{40}/gm);
-    this.parentHashs = m ? m.map(s => s.split(/\s/).pop()) as string[] : [];
+    this.parentHashes = m ? m.map(s => s.split(/\s/).pop()) as string[] : [];
   }
 
   get hasParents() {
-    return !!this.parentHashs.length;
+    return !!this.parentHashes.length;
   }
 
   get isMergeCommit() {
-    return this.parentHashs.length >= 2;
+    return this.parentHashes.length >= 2;
   }
 
   get baseParentHash() {
-    return this.parentHashs[0];
+    return this.parentHashes[0];
   }
 
   get mergedParentHashes() {
-    return this.parentHashs.slice(1);
+    return this.parentHashes.slice(1);
   }
   
   async walk(parentHash = this.baseParentHash) {

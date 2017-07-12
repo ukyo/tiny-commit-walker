@@ -125,18 +125,18 @@ test('walk commits', async t => {
   // master
   t.is(head.branch.name, 'master');
   t.true(commit.hash.startsWith('8615421'));
-  t.is(commit.parentHashs.length, 3);
+  t.is(commit.parentHashes.length, 3);
   t.true(commit.isMergeCommit);
-  t.true(commit.parentHashs[0].startsWith('90355ed'), 'base parent commit');
-  t.true(commit.parentHashs[1].startsWith('9cf93cb'), '"a" branch');
-  t.true(commit.parentHashs[2].startsWith('27ed78c'), '"c" branch');
+  t.true(commit.parentHashes[0].startsWith('90355ed'), 'base parent commit');
+  t.true(commit.parentHashes[1].startsWith('9cf93cb'), '"a" branch');
+  t.true(commit.parentHashes[2].startsWith('27ed78c'), '"c" branch');
   t.true(commit.isMergeCommit);
   t.true(commit.baseParentHash.startsWith('90355ed'));
   t.true(commit.mergedParentHashes[0].startsWith('9cf93cb'));
   t.true(commit.mergedParentHashes[1].startsWith('27ed78c'));
-  t.true((await commit.walk(commit.parentHashs[1])).hash.startsWith('9cf93cb'), 'walk to "a" branch');
-  t.true((await commit.walk(commit.parentHashs[2])).hash.startsWith('27ed78c'), 'walk to "c" branch');
-  t.is(commit.baseParentHash, commit.parentHashs[0]);
+  t.true((await commit.walk(commit.parentHashes[1])).hash.startsWith('9cf93cb'), 'walk to "a" branch');
+  t.true((await commit.walk(commit.parentHashes[2])).hash.startsWith('27ed78c'), 'walk to "c" branch');
+  t.is(commit.baseParentHash, commit.parentHashes[0]);
   const c = await commit.walk(commit.baseParentHash);
   commit = await commit.walk();
   t.deepEqual(commit, c, 'default paramater of commit.walk is commit.baseParentHash');
@@ -149,10 +149,10 @@ test('walk commits', async t => {
   // a
   commit = branches.find(b => b.name === 'a').commit;
   t.true(commit.hash.startsWith('9cf93cb'));
-  t.is(commit.parentHashs.length, 2);
+  t.is(commit.parentHashes.length, 2);
   t.true(commit.isMergeCommit);
-  t.true(commit.parentHashs[0].startsWith('b413700'));
-  t.true(commit.parentHashs[1].startsWith('1361abe'));
+  t.true(commit.parentHashes[0].startsWith('b413700'));
+  t.true(commit.parentHashes[1].startsWith('1361abe'));
   commit = await commit.walk();
   t.true(commit.hash.startsWith('b413700')); t.not(commit.isMergeCommit);
   commit = await commit.walk();
@@ -195,16 +195,16 @@ test('walk commits sync', t => {
   // master
   t.is(head.branch.name, 'master');
   t.true(commit.hash.startsWith('8615421'));
-  t.is(commit.parentHashs.length, 3);
+  t.is(commit.parentHashes.length, 3);
   t.true(commit.isMergeCommit);
-  t.true(commit.parentHashs[0].startsWith('90355ed'), 'base parent commit');
-  t.true(commit.parentHashs[1].startsWith('9cf93cb'), '"a" branch');
-  t.true(commit.parentHashs[2].startsWith('27ed78c'), '"c" branch');
+  t.true(commit.parentHashes[0].startsWith('90355ed'), 'base parent commit');
+  t.true(commit.parentHashes[1].startsWith('9cf93cb'), '"a" branch');
+  t.true(commit.parentHashes[2].startsWith('27ed78c'), '"c" branch');
   t.true(commit.isMergeCommit);
   t.true(commit.baseParentHash.startsWith('90355ed'));
-  t.true((commit.walkSync(commit.parentHashs[1])).hash.startsWith('9cf93cb'), 'walk to "a" branch');
-  t.true((commit.walkSync(commit.parentHashs[2])).hash.startsWith('27ed78c'), 'walk to "c" branch');
-  t.is(commit.baseParentHash, commit.parentHashs[0]);
+  t.true((commit.walkSync(commit.parentHashes[1])).hash.startsWith('9cf93cb'), 'walk to "a" branch');
+  t.true((commit.walkSync(commit.parentHashes[2])).hash.startsWith('27ed78c'), 'walk to "c" branch');
+  t.is(commit.baseParentHash, commit.parentHashes[0]);
   const c = commit.walkSync(commit.baseParentHash);
   commit = commit.walkSync();
   t.deepEqual(commit, c, 'default paramater of commit.walk is commit.baseParentHash');
@@ -217,10 +217,10 @@ test('walk commits sync', t => {
   // a
   commit = branches.find(b => b.name === 'a').commit;
   t.true(commit.hash.startsWith('9cf93cb'));
-  t.is(commit.parentHashs.length, 2);
+  t.is(commit.parentHashes.length, 2);
   t.true(commit.isMergeCommit);
-  t.true(commit.parentHashs[0].startsWith('b413700'));
-  t.true(commit.parentHashs[1].startsWith('1361abe'));
+  t.true(commit.parentHashes[0].startsWith('b413700'));
+  t.true(commit.parentHashes[1].startsWith('1361abe'));
   commit = commit.walkSync();
   t.true(commit.hash.startsWith('b413700')); t.not(commit.isMergeCommit);
   commit = commit.walkSync();
