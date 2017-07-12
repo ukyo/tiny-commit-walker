@@ -1,8 +1,9 @@
 import test from 'ava';
-import { Commit, Repository } from './index';
+import * as path from 'path';
+import { Commit, Repository } from '../index';
 
-const repo1 = new Repository('fixture/repo1');
-const repo2 = new Repository('fixture/repo2');
+const repo1 = new Repository(path.join(__dirname, 'fixture', 'repo1'));
+const repo2 = new Repository(path.join(__dirname, 'fixture', 'repo2'));
 
 test('read branches', async t => {
   const branches = await repo1.readBranches();
