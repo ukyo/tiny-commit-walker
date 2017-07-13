@@ -2,11 +2,28 @@ import test from 'ava';
 import * as path from 'path';
 import { Commit, Repository } from '../index';
 
-const repo1 = new Repository(path.join(__dirname, 'fixture', 'repo1'));
-const repo2 = new Repository(path.join(__dirname, 'fixture', 'repo2'));
-repo1.gitRoot = path.join(__dirname, 'fixture', 'repo1-dot-git');
-repo2.gitRoot = path.join(__dirname, 'fixture', 'repo2-dot-git');
+const repo1 = new Repository(path.join(__dirname, 'fixture', 'repo1-dot-git'));
+const repo2 = new Repository(path.join(__dirname, 'fixture', 'repo2-dot-git'));
 
+test('find gitDir', async t => {
+  const gitDir = await Repository.findGitDir(__dirname);
+  t.is(gitDir, path.resolve(__dirname, '../.git'));
+});
+
+test('find gitDir (fail)', async t => {
+  const gitDir = await Repository.findGitDir('/');
+  t.is(gitDir, undefined);
+});
+
+test('find gitDir sync', t => {
+  const gitDir = Repository.findGitDirSync(__dirname);
+  t.is(gitDir, path.resolve(__dirname, '../.git'));
+});
+
+test('find gitDir sync', t => {
+  const gitDir = Repository.findGitDirSync('/');
+  t.is(gitDir, undefined);
+});
 
 test('read branches', async t => {
   const branches = await repo1.readBranches();
