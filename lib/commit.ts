@@ -13,7 +13,7 @@ export class Commit {
   body: string;
 
   constructor(
-    private gitRoot: string,
+    private gitDir: string,
     readonly hash: string,
     private data: string,
   ) {
@@ -42,26 +42,26 @@ export class Commit {
   }
   
   async walk(parentHash = this.baseParentHash) {
-    return await readCommit(this.gitRoot, parentHash);
+    return await Commit.readCommit(this.gitDir, parentHash);
   }
 
   walkSync(parentHash = this.baseParentHash) {
-    return readCommitSync(this.gitRoot, parentHash);
+    return Commit.readCommitSync(this.gitDir, parentHash);
+  }
+
+  static async readCommit(gitDir: string, hash: string): Promise<Commit> {
+    const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
+    const data = (await inflateAsync(deflatedData)).toString('utf8');
+    return new Commit(gitDir, hash, data);
+  }
+
+  static readCommitSync(gitDir: string, hash: string): Commit {
+    const deflatedData = fs.readFileSync(getObjectPath(gitDir, hash));
+    const data = zlib.inflateSync(deflatedData).toString('utf8');
+    return new Commit(gitDir, hash, data);
   }
 }
 
-function getObjectPath(gitRoot: string, hash: string) {
-  return path.join(gitRoot, 'objects', hash.replace(/^(.{2})(.{38})$/, `$1${path.sep}$2`));
-}
-
-export async function readCommit(gitRoot: string, hash: string): Promise<Commit> {
-  const deflatedData = await readFileAsync(getObjectPath(gitRoot, hash));
-  const data = (await inflateAsync(deflatedData)).toString('utf8');
-  return new Commit(gitRoot, hash, data);
-}
-
-export function readCommitSync(gitRoot: string, hash: string): Commit {
-  const deflatedData = fs.readFileSync(getObjectPath(gitRoot, hash));
-  const data = zlib.inflateSync(deflatedData).toString('utf8');
-  return new Commit(gitRoot, hash, data);
+function getObjectPath(gitDir: string, hash: string) {
+  return path.join(gitDir, 'objects', hash.replace(/^(.{2})(.{38})$/, `$1${path.sep}$2`));
 }
