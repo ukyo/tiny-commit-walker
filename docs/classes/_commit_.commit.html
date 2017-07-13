@@ -90,7 +90,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_commit_.commit.html#body" class="tsd-kind-icon">body</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_commit_.commit.html#data" class="tsd-kind-icon">data</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_commit_.commit.html#gitroot" class="tsd-kind-icon">git<wbr>Root</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_commit_.commit.html#gitdir" class="tsd-kind-icon">git<wbr>Dir</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_commit_.commit.html#parenthashes" class="tsd-kind-icon">parent<wbr>Hashes</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_commit_.commit.html#size" class="tsd-kind-icon">size</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_commit_.commit.html#type" class="tsd-kind-icon">type</a></li>
@@ -110,6 +110,8 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_commit_.commit.html#walk" class="tsd-kind-icon">walk</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_commit_.commit.html#walksync" class="tsd-kind-icon">walk<wbr>Sync</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_commit_.commit.html#readcommit" class="tsd-kind-icon">read<wbr>Commit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_commit_.commit.html#readcommitsync" class="tsd-kind-icon">read<wbr>Commit<wbr>Sync</a></li>
 							</ul>
 						</section>
 					</div>
@@ -121,19 +123,19 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Commit<span class="tsd-signature-symbol">(</span>gitRoot<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, hash<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Commit<span class="tsd-signature-symbol">(</span>gitDir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, hash<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L13">commit.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L13">commit.ts:13</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>gitRoot: <span class="tsd-signature-type">string</span></h5>
+									<h5>gitDir: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
 									<h5>hash: <span class="tsd-signature-type">string</span></h5>
@@ -155,7 +157,7 @@
 					<div class="tsd-signature tsd-kind-icon">body<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L13">commit.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L13">commit.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -165,17 +167,17 @@
 					<div class="tsd-signature tsd-kind-icon">data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L18">commit.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L18">commit.ts:18</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="gitroot" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> git<wbr>Root</h3>
-					<div class="tsd-signature tsd-kind-icon">git<wbr>Root<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="gitdir" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> git<wbr>Dir</h3>
+					<div class="tsd-signature tsd-kind-icon">git<wbr>Dir<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L16">commit.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L16">commit.ts:16</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -185,7 +187,7 @@
 					<div class="tsd-signature tsd-kind-icon">parent<wbr>Hashes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L10">commit.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L10">commit.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -195,7 +197,7 @@
 					<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L12">commit.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L12">commit.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -205,7 +207,7 @@
 					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L11">commit.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L11">commit.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -222,7 +224,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L36">commit.ts:36</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L36">commit.ts:36</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -239,7 +241,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L28">commit.ts:28</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L28">commit.ts:28</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -256,7 +258,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L32">commit.ts:32</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L32">commit.ts:32</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -273,7 +275,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L40">commit.ts:40</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L40">commit.ts:40</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -293,7 +295,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L44">commit.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L44">commit.ts:44</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -316,13 +318,65 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/db4cd09/lib/commit.ts#L48">commit.ts:48</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L48">commit.ts:48</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> parentHash: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;this.baseParentHash</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_commit_.commit.html" class="tsd-signature-type">Commit</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="readcommit" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> read<wbr>Commit</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">read<wbr>Commit<span class="tsd-signature-symbol">(</span>gitDir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, hash<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L52">commit.ts:52</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>gitDir: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>hash: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="readcommitsync" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> read<wbr>Commit<wbr>Sync</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">read<wbr>Commit<wbr>Sync<span class="tsd-signature-symbol">(</span>gitDir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, hash<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/commit.ts#L58">commit.ts:58</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>gitDir: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>hash: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_commit_.commit.html" class="tsd-signature-type">Commit</a></h4>
@@ -365,7 +419,7 @@
 								<a href="_commit_.commit.html#data" class="tsd-kind-icon">data</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="_commit_.commit.html#gitroot" class="tsd-kind-icon">git<wbr>Root</a>
+								<a href="_commit_.commit.html#gitdir" class="tsd-kind-icon">git<wbr>Dir</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="_commit_.commit.html#parenthashes" class="tsd-kind-icon">parent<wbr>Hashes</a>
@@ -394,16 +448,16 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_commit_.commit.html#walksync" class="tsd-kind-icon">walk<wbr>Sync</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_commit_.commit.html#readcommit" class="tsd-kind-icon">read<wbr>Commit</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_commit_.commit.html#readcommitsync" class="tsd-kind-icon">read<wbr>Commit<wbr>Sync</a>
+							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/_commit_.html#readcommit" class="tsd-kind-icon">read<wbr>Commit</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/_commit_.html#readcommitsync" class="tsd-kind-icon">read<wbr>Commit<wbr>Sync</a>
-					</li>
 				</ul>
 			</nav>
 		</div>

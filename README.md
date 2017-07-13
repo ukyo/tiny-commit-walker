@@ -16,7 +16,8 @@ $ npm install --save tiny-commit-walker
 import { Repository } from 'tiny-commit-walker';
 
 (async () => {
-  const repo = new Repository('path/to/repo');
+  const repo = new Repository('path/to/repo/.git');
+  // const repo = new Repository(await Repository.findGitDir('path/to/repo'));
   const branches = await repo.readBranches();
   const tags = await repo.readTags();
   const branch = await repo.readCommitByBranch('master');
@@ -30,7 +31,7 @@ import { Repository } from 'tiny-commit-walker';
 
 // or
 
-const repo = new Repository('path/to/repo');
+const repo = new Repository('path/to/repo/.git');
 const branches = repo.readBranchesSync();
 const tags = repo.readTagsSync();
 const branch = repo.readCommitByBranchSync('master');
