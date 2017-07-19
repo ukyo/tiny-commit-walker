@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as promisify from 'util.promisify';
 import * as zlib from 'zlib';
 import * as path from 'path';
+import { Packs } from './pack';
 
 const readFileAsync = promisify(fs.readFile);
 const inflateAsync = promisify(zlib.inflate);
@@ -11,6 +12,7 @@ export class Commit {
   type: string;
   size: number;
   body: string;
+  packs: Packs;
 
   constructor(
     private gitDir: string,
@@ -50,9 +52,16 @@ export class Commit {
   }
 
   static async readCommit(gitDir: string, hash: string): Promise<Commit> {
-    const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
-    const data = (await inflateAsync(deflatedData)).toString('utf8');
-    return new Commit(gitDir, hash, data);
+    const packs = await Packs.create(gitDir);
+    if (packs) {
+      const body = await packs.unpackGitObject(hash);
+      const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
+      return new Commit(gitDir, hash, data);
+    } else {
+      const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
+      const data = (await inflateAsync(deflatedData)).toString('utf8');
+      return new Commit(gitDir, hash, data);
+    }
   }
 
   static readCommitSync(gitDir: string, hash: string): Commit {

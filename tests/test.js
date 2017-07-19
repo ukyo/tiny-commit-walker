@@ -4,6 +4,7 @@ import { Commit, Repository } from '../index';
 
 const repo1 = new Repository(path.join(__dirname, 'fixture', 'repo1-dot-git'));
 const repo2 = new Repository(path.join(__dirname, 'fixture', 'repo2-dot-git'));
+const repo1Packed = new Repository(path.join(__dirname, 'fixture', 'repo1-packed-dot-git'));
 
 test('find gitDir', async t => {
   const gitDir = await Repository.findGitDir(__dirname);
@@ -270,5 +271,76 @@ test('walk commits sync', t => {
   commit = commit.walkSync();
   t.true(commit.hash.startsWith('2ca5ca9')); t.not(commit.isMergeCommit);
   commit = commit.walkSync();
+  t.true(commit.hash.startsWith('27ed78c'));
+});
+
+test('walk commits (packed)', async t => {
+  const branches = await repo1Packed.readBranches();
+  const head = await repo1Packed.readHead();
+  let commit = head.branch.commit;
+  // master
+  t.is(head.branch.name, 'master');
+  t.true(commit.hash.startsWith('8615421'));
+  t.is(commit.parentHashes.length, 3);
+  t.true(commit.isMergeCommit);
+  t.true(commit.parentHashes[0].startsWith('90355ed'), 'base parent commit');
+  t.true(commit.parentHashes[1].startsWith('9cf93cb'), '"a" branch');
+  t.true(commit.parentHashes[2].startsWith('27ed78c'), '"c" branch');
+  t.true(commit.isMergeCommit);
+  t.true(commit.baseParentHash.startsWith('90355ed'));
+  t.true(commit.mergedParentHashes[0].startsWith('9cf93cb'));
+  t.true(commit.mergedParentHashes[1].startsWith('27ed78c'));
+  t.true((await commit.walk(commit.parentHashes[1])).hash.startsWith('9cf93cb'), 'walk to "a" branch');
+  t.true((await commit.walk(commit.parentHashes[2])).hash.startsWith('27ed78c'), 'walk to "c" branch');
+  t.is(commit.baseParentHash, commit.parentHashes[0]);
+  const c = await commit.walk(commit.baseParentHash);
+  // console.log(commit);
+  commit = await commit.walk();
+  t.deepEqual(commit, c, 'default paramater of commit.walk is commit.baseParentHash');
+  t.true(commit.hash.startsWith('90355ed')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('3c07e56')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('fe65269'));
+  t.not(commit.hasParents);
+  // a
+  commit = branches.find(b => b.name === 'a').commit;
+  t.true(commit.hash.startsWith('9cf93cb'));
+  t.is(commit.parentHashes.length, 2);
+  t.true(commit.isMergeCommit);
+  t.true(commit.parentHashes[0].startsWith('b413700'));
+  t.true(commit.parentHashes[1].startsWith('1361abe'));
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('b413700')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('5c40684')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('a7546ba')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('3c07e56'));
+  // b
+  commit = branches.find(b => b.name === 'b').commit;
+  t.true(commit.hash.startsWith('1361abe'));
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('d19f4a6')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('5c40684'));
+  // c
+  commit = branches.find(b => b.name === 'c').commit;
+  t.true(commit.hash.startsWith('27ed78c')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('25368be')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('b282295')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('3c07e56'));
+  // d
+  commit = branches.find(b => b.name === 'd').commit;
+  t.true(commit.hash.startsWith('b1c1409')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('fa6ba37')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
+  t.true(commit.hash.startsWith('2ca5ca9')); t.not(commit.isMergeCommit);
+  commit = await commit.walk();
   t.true(commit.hash.startsWith('27ed78c'));
 });

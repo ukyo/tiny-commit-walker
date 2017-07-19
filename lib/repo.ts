@@ -24,6 +24,11 @@ export interface HEAD {
 }
 
 export class Repository {
+  private _refs: {
+    heads: Branch[];
+    tags: Tag[];
+  };
+
   constructor(public gitDir: string) { }
 
   static async findGitDir(repositoryPath = process.cwd()): Promise<string | undefined> {
@@ -58,6 +63,51 @@ export class Repository {
       if (repositoryPath === parent) return;
       return Repository.findGitDirSync(parent);
     }
+  }
+
+  private async _initRefs() {
+    const createDict = async (dir: 'heads' | 'tags') => {
+      const dict: { [name: string]: string } = {};
+      const names = await readDirAsync(path.join(this.gitDir, 'refs', dir));
+      for (let i = 0; i < names.length; i++) {
+        const name = names[i];
+        const hash = (await readFileAsync(path.join(this.gitDir, 'refs', dir, name), 'utf8')).trim();
+        dict[name] = hash; 
+      }
+      return dict;
+    };
+
+    const readCommits = async (dict: { [name: string]: string }) => {
+      return await Promise.all(Object.keys(dict).map(async name => {
+        return {
+          name,
+          commit: await Commit.readCommit(this.gitDir, dict[name])
+        };
+      }));
+    };
+
+    const branchDict = await createDict('heads');
+    const tagDict = await createDict('tags');
+
+    try {
+      const s = await readFileAsync(path.join(this.gitDir, 'info', 'refs'), 'utf8');
+      const lines = s.trim().split('\n').forEach((line: string) => {
+        const [hash, ref] = line.split(/\s+/);
+        const name = ref.split('/').pop() as string;
+        if (/^refs\/heads\//.test(ref)) {
+          if (branchDict[name]) return;
+          branchDict[name] = hash;
+        } else {
+          if (tagDict[name]) return;
+          tagDict[name] = hash;
+        }
+      });
+    } catch (e) { }
+
+    this._refs = {
+      heads: await readCommits(branchDict),
+      tags: await readCommits(tagDict),
+    };
   }
 
   async readHead(): Promise<HEAD> {
@@ -98,14 +148,9 @@ export class Repository {
     }
   }
 
-  private async _readBranchesOrTags(dir: string): Promise<(Tag | Branch)[]> {
-    const names: string[] = await readDirAsync(path.join(this.gitDir, 'refs', dir));
-    return await Promise.all(names.map(async name => {
-      return {
-        name,
-        commit: await this._readCommitByBranchOrTag(dir, name),
-      };
-    }));
+  private async _readBranchesOrTags(dir: 'heads' | 'tags'): Promise<(Tag | Branch)[]> {
+    if (!this._refs) await this._initRefs();
+    return this._refs[dir];
   }
 
   private _readBranchesOrTagsSync(dir: string): (Tag | Branch)[] {
@@ -118,9 +163,11 @@ export class Repository {
     });
   }
 
-  private async _readCommitByBranchOrTag(dir: string, name: string): Promise<Commit> {
-    const hash = (await readFileAsync(path.join(this.gitDir, 'refs', dir, name), 'utf8')).trim();
-    return await Commit.readCommit(this.gitDir, hash);
+  private async _readCommitByBranchOrTag(dir: 'heads' | 'tags', name: string): Promise<Commit> {
+    if (!this._refs) await this._initRefs();
+    const branchOrTag = this._refs[dir].find(o => o.name === name);
+    if (!branchOrTag) throw new Error(`refs/${dir}/${name} is not found. ${JSON.stringify(this._refs)}`);
+    return branchOrTag.commit;
   }
 
   private _readCommitByBranchOrTagSync(dir: string, name: string): Commit {
