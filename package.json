@@ -25,7 +25,9 @@
     "url": "https://github.com/ukyo/tiny-commit-walker/issues"
   },
   "dependencies": {
+    "@types/lru-cache": "^4.0.0",
     "@types/node": "^8.0.10",
+    "lru-cache": "^4.1.1",
     "util.promisify": "^1.0.0"
   },
   "devDependencies": {
