@@ -55,13 +55,14 @@ export class Commit {
     const packs = await Packs.create(gitDir);
     if (packs) {
       const body = await packs.unpackGitObject(hash);
-      const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
-      return new Commit(gitDir, hash, data);
-    } else {
-      const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
-      const data = (await inflateAsync(deflatedData)).toString('utf8');
-      return new Commit(gitDir, hash, data);
+      if (body) {
+        const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
+        return new Commit(gitDir, hash, data);
+      }
     }
+    const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
+    const data = (await inflateAsync(deflatedData)).toString('utf8');
+    return new Commit(gitDir, hash, data);
   }
 
   static readCommitSync(gitDir: string, hash: string): Commit {
