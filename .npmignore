@@ -3,3 +3,4 @@ tests
 docs
 .travis.yml
 .editorconfig
+lib
