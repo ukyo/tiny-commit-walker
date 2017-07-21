@@ -85,6 +85,8 @@ function setupPackedIndexDict(idxFileBuffer: Buffer, fileIndex: number, dict: Pa
   }
 }
 
+const creatings: { [gitDir: string]: Promise<Packs | undefined> } = {};
+
 export class Packs {
   constructor(
     public packDir: string,
@@ -95,6 +97,17 @@ export class Packs {
   static async create(gitDir: string): Promise<Packs | undefined> {
     const cache = packsCache.get(gitDir);
     if (cache) return cache;
+    if (creatings[gitDir]) return creatings[gitDir];
+    const promise = this._create(gitDir);
+    creatings[gitDir] = promise;
+    return await promise.then(packs => {
+      delete creatings[gitDir];
+      packs && packsCache.set(gitDir, packs);
+      return packs;
+    });
+  }
+
+  static async _create(gitDir: string): Promise<Packs | undefined> {
     const packDir = path.join(gitDir, 'objects', 'pack');
     let fileNames: string[];
     try {
@@ -157,13 +170,13 @@ export class Packs {
       case ObjectTypeEnum.TREE:
       case ObjectTypeEnum.BLOB:
       case ObjectTypeEnum.TAG: {
-        const buff = Buffer.alloc(po.size * 2);
-        await readAsync(fd, buff, 0, po.size, idx.offset + po.offset);
+        const buff = Buffer.alloc(po.size * 2 + 32);
+        await readAsync(fd, buff, 0, buff.length, idx.offset + po.offset);
         dst = await inflateAsync(buff);
         break;
       }
-      case ObjectTypeEnum.REF_DELTA:
       case ObjectTypeEnum.OFS_DELTA:
+      case ObjectTypeEnum.REF_DELTA:
         dst = await this._unpackDeltaObject(fd, idx, po, head);
         break;
     }
@@ -175,21 +188,22 @@ export class Packs {
   }
 
   private async _unpackDeltaObject(fd: number, idx: PackedIndex, po: PackedObject, head: Buffer): Promise<Buffer> {
+    let src: Buffer;
     if (po.type === ObjectTypeEnum.OFS_DELTA) {
       const [baseOffset, offset] = readBaseOffset(head, po.offset);
       po.offset = offset;
-      const src = await this._unpackGitObject(fd, {
+      src = await this._unpackGitObject(fd, {
         offset: idx.offset - baseOffset,
         fileIndex: idx.fileIndex
       });
-      const buff = Buffer.alloc(po.size * 2);
-      await readAsync(fd, buff, 0, buff.length, idx.offset + po.offset);
-      const delta = await inflateAsync(buff);
-      const dst = patchDelta(src, delta);
-      return dst;
     } else {
-      // TODO;
-      throw new Error('TODO: not yet implemented ref_delta');
+      const hash = head.slice(po.offset, po.offset += 20).toString('hex');
+      src = await this.unpackGitObject(hash) as Buffer;
     }
+    const buff = Buffer.alloc(po.size * 2 + 32);
+    await readAsync(fd, buff, 0, buff.length, idx.offset + po.offset);
+    const delta = await inflateAsync(buff);
+    const dst = patchDelta(src, delta);
+    return dst;
   }
 }
