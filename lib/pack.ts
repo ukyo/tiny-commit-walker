@@ -4,6 +4,7 @@ import * as promisify from 'util.promisify';
 import * as path from 'path';
 import * as zlib from 'zlib';
 import { Commit } from './commit';
+import { patchDelta, readBaseOffset } from "./delta";
 
 
 const statAsync = promisify(fs.stat);
@@ -49,10 +50,26 @@ interface PackedIndexDict {
   [hash: string]: PackedIndex;
 }
 
-interface PackedObject {
+class PackedObject {
   type: ObjectTypeEnum;
   size: number;
-  i: number;
+  offset: number;
+
+  constructor(idx: PackedIndex, buff: Buffer) {
+    let c = buff[0];
+    let type = (c >> 4) & 7;
+    let size = (c & 15);
+    let offset = 1;
+    let x = 16;
+    while (c & 0x80) {
+      c = buff[offset++];
+      size +=(c & 0x7f) * x;
+      x *= 128;
+    }
+    this.type = type;
+    this.size = size;
+    this.offset = offset;
+  }
 }
 
 function setupPackedIndexDict(idxFileBuffer: Buffer, fileIndex: number, dict: PackedIndexDict) {
@@ -70,50 +87,54 @@ function setupPackedIndexDict(idxFileBuffer: Buffer, fileIndex: number, dict: Pa
 
 export class Packs {
   constructor(
-    public gitDir: string,
+    public packDir: string,
     public packFileNames: string[],
     public packedIndexDict: PackedIndexDict,
   ) { }
 
-  static async create(gitDir: string) {
+  static async create(gitDir: string): Promise<Packs | undefined> {
     const cache = packsCache.get(gitDir);
     if (cache) return cache;
-    let s: string;
+    const packDir = path.join(gitDir, 'objects', 'pack');
+    let fileNames: string[];
     try {
-      s = (await readFileAsync(path.join(gitDir, 'objects', 'info', 'packs'), 'utf8')).trim() as string;
+      fileNames = (await readDirAsync(packDir) as string[])
+        .filter(name => /\.idx$/.test(name))
+        .map(name => name.split(".").shift() as string);
     } catch (e) {
       return;
     }
-    const packedIndexDict: PackedIndexDict = {}; 
-    const fileNames = s.split('\n').map(line => (line.match(/pack-[0-9a-f]{40}/) as string[])[0]);
+    if (!fileNames.length) {
+      return;
+    }
+    const packedIndexDict: PackedIndexDict = {};
     for (let i = 0; i < fileNames.length; i++) {
-      const buff = await readFileAsync(path.join(gitDir, 'objects', 'pack', fileNames[i] + '.idx'));
+      const buff = await readFileAsync(path.join(packDir, fileNames[i] + ".idx"));
       setupPackedIndexDict(buff, i, packedIndexDict);
     }
-    return new Packs(gitDir, fileNames, packedIndexDict);
+    return new Packs(packDir, fileNames, packedIndexDict);
   }
 
   static createSync(gitDir: string) {
 
   }
 
-  async unpackGitObject(hash: string): Promise<Buffer> {
+  async unpackGitObject(hash: string): Promise<Buffer | undefined> {
     const idx = this.packedIndexDict[hash];
     const key = `${idx.fileIndex}:${idx.offset}`;
     let dst: Buffer;
     if (!idx) {
-      throw new Error(`${hash} is not found.`);
+      return;
     }
     dst = packedObjectCache.get(key);
     if (dst) {
       return dst;
     }
-    const filePath = path.join(this.gitDir, 'objects', 'pack', this.packFileNames[idx.fileIndex] + '.pack');
+    const filePath = path.join(this.packDir, this.packFileNames[idx.fileIndex] + '.pack');
     const fd = await openFileAsync(filePath, 'r');
     try {
       dst = await this._unpackGitObject(fd, idx);
     } catch (e) {
-      // console.log(e.stack);
       throw e;
     } finally {
       await closeFileAsync(fd);
@@ -130,14 +151,14 @@ export class Packs {
     }
     const head = Buffer.alloc(32);
     await readAsync(fd, head, 0, 32, idx.offset);
-    const po = this._initPackedObject(idx, head);
+    const po = new PackedObject(idx, head);
     switch (po.type) {
       case ObjectTypeEnum.COMMIT:
       case ObjectTypeEnum.TREE:
       case ObjectTypeEnum.BLOB:
       case ObjectTypeEnum.TAG: {
         const buff = Buffer.alloc(po.size * 2);
-        await readAsync(fd, buff, 0, po.size, idx.offset + po.i);
+        await readAsync(fd, buff, 0, po.size, idx.offset + po.offset);
         dst = await inflateAsync(buff);
         break;
       }
@@ -147,107 +168,28 @@ export class Packs {
         break;
     }
     if (!dst) {
-      throw new Error(`${po.type} is not a invalid object type.`);
+      throw new Error(`${po.type} is a invalid object type.`);
     }
     packedObjectCache.set(key, dst);    
     return dst;
   }
 
-  private _initPackedObject(idx: PackedIndex, buff: Buffer): PackedObject {
-    let c = buff[0];
-    let type = (c >> 4) & 7;
-    let size = (c & 15);
-    let i = 1;
-    let x = 16;
-    while (c & 0x80) {
-      c = buff[i++];
-      size +=(c & 0x7f) * x;
-      x *= 128;
-    }
-    return { type, size, i };
-  }
-
-  private _readOfsBaseOffset(po: PackedObject, head: Buffer) {
-    let c = head[po.i++];
-    let offset = 1;
-    let baseOffset = c & 0x7f;
-    while (c & 0x80) {
-      baseOffset++;
-      c = head[po.i++];
-      baseOffset = baseOffset * 128 + (c & 0x7f);
-    }
-    return baseOffset;
-  }
-
-  private _readOfsDataSize(buff: Buffer, offset: number) {
-    let cmd: number;
-    let size = 0;
-    let x = 1;
-    do {
-      cmd = buff[offset++];
-      size += (cmd & 0x7f) * x;
-      x *= 128;
-    } while (cmd & 0x80);
-    return [size, offset];
-  }
-
   private async _unpackDeltaObject(fd: number, idx: PackedIndex, po: PackedObject, head: Buffer): Promise<Buffer> {
     if (po.type === ObjectTypeEnum.OFS_DELTA) {
-      const baseOffset = this._readOfsBaseOffset(po, head);
+      const [baseOffset, offset] = readBaseOffset(head, po.offset);
+      po.offset = offset;
       const src = await this._unpackGitObject(fd, {
         offset: idx.offset - baseOffset,
         fileIndex: idx.fileIndex
       });
-      const delta = await this._getData(fd, idx, po);
-      const dst = this._patchDelta(src, delta);
+      const buff = Buffer.alloc(po.size * 2);
+      await readAsync(fd, buff, 0, buff.length, idx.offset + po.offset);
+      const delta = await inflateAsync(buff);
+      const dst = patchDelta(src, delta);
       return dst;
     } else {
       // TODO;
-      return new Buffer(1);
+      throw new Error('TODO: not yet implemented ref_delta');
     }
-  }
-
-  private async _getData(fd: number, idx: PackedIndex, po: PackedObject) {
-    const buff = Buffer.alloc(po.size * 2);
-    await readAsync(fd, buff, 0, buff.length, idx.offset + po.i);
-    return await inflateAsync(buff);
-  }
-
-  private _patchDelta(src: Buffer, delta: Buffer) {
-    let offset = 0;
-    let srcSize;
-    let dstSize;
-    [srcSize, offset] = this._readOfsDataSize(delta, offset);
-    [dstSize, offset] = this._readOfsDataSize(delta, offset);
-    let dstOffset = 0;
-    let cmd: number;
-    const dst = Buffer.alloc(dstSize);
-    while (offset < delta.length) {
-      cmd = delta[offset++];
-      if (cmd & 0x80) {
-        let cpOff = 0;
-        let cpSize = 0;
-        if (cmd & 0x01) cpOff = delta[offset++];
-        if (cmd & 0x02) cpOff |= (delta[offset++] << 8);
-        if (cmd & 0x04) cpOff |= (delta[offset++] << 16);
-        if (cmd & 0x08) cpOff |= (delta[offset++] << 24);
-        if (cmd & 0x10) cpSize = delta[offset++];
-        if (cmd & 0x20) cpSize |= (delta[offset++] << 8);
-        if (cmd & 0x40) cpSize |= (delta[offset++] << 16);
-        if (cpSize === 0) cpSize = 0x10000;
-        dst.set(src.slice(cpOff, cpOff + cpSize), dstOffset);
-        dstOffset += cpSize;
-        dstSize -= cpSize;
-      } else if (cmd) {
-        if (cmd > dstSize) {
-          break;
-        }
-        dst.set(delta.slice(offset, offset + cmd), dstOffset);
-        dstOffset += cmd;
-        offset += cmd;
-        dstSize -= cmd;
-      }
-    }
-    return dst;
   }
 }
