@@ -41,12 +41,12 @@ const openCounts: {
   };
 } = {};
 
-interface PackedIndex {
+export interface PackedIndex {
   offset: number;
   fileIndex: number;
 }
 
-interface PackedIndexDict {
+export interface PackedIndexDict {
   [hash: string]: PackedIndex;
 }
 
