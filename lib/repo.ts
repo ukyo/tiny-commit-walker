@@ -68,12 +68,14 @@ export class Repository {
   private async _initRefs() {
     const createDict = async (dir: 'heads' | 'tags') => {
       const dict: { [name: string]: string } = {};
-      const names = await readDirAsync(path.join(this.gitDir, 'refs', dir));
-      for (let i = 0; i < names.length; i++) {
-        const name = names[i];
-        const hash = (await readFileAsync(path.join(this.gitDir, 'refs', dir, name), 'utf8')).trim();
-        dict[name] = hash; 
-      }
+      try {
+        const names = await readDirAsync(path.join(this.gitDir, 'refs', dir));
+        for (let i = 0; i < names.length; i++) {
+          const name = names[i];
+          const hash = (await readFileAsync(path.join(this.gitDir, 'refs', dir, name), 'utf8')).trim();
+          dict[name] = hash; 
+        }
+      } catch (e) { }
       return dict;
     };
 
@@ -166,7 +168,7 @@ export class Repository {
   private async _readCommitByBranchOrTag(dir: 'heads' | 'tags', name: string): Promise<Commit> {
     if (!this._refs) await this._initRefs();
     const branchOrTag = this._refs[dir].find(o => o.name === name);
-    if (!branchOrTag) throw new Error(`refs/${dir}/${name} is not found. ${JSON.stringify(this._refs)}`);
+    if (!branchOrTag) throw new Error(`refs/${dir}/${name} is not found.`);
     return branchOrTag.commit;
   }
 
