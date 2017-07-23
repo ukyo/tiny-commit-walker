@@ -8,16 +8,16 @@ const readFileAsync = promisify(fs.readFile);
 const inflateAsync = promisify(zlib.inflate);
 
 export class Commit {
-  parentHashes: string[];
-  type: string;
-  size: number;
-  body: string;
-  packs: Packs;
+  readonly parentHashes: string[];
+  readonly type: string;
+  readonly size: number;
+  readonly body: string;
+  private _packs: Packs;
 
   constructor(
-    private gitDir: string,
+    readonly gitDir: string,
     readonly hash: string,
-    private data: string,
+    readonly data: string,
   ) {
     const [head, ...rest] = data.split('\u0000');
     const [type, size] = head.split(/\s/);
@@ -52,13 +52,11 @@ export class Commit {
   }
 
   static async readCommit(gitDir: string, hash: string): Promise<Commit> {
-    const packs = await Packs.create(gitDir);
-    if (packs) {
+    const packs = await Packs.initialize(gitDir);
+    if (packs.hasPackFiles) {
       const body = await packs.unpackGitObject(hash);
-      if (body) {
-        const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
-        return new Commit(gitDir, hash, data);
-      }
+      const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
+      return new Commit(gitDir, hash, data);
     }
     const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
     const data = (await inflateAsync(deflatedData)).toString('utf8');
@@ -66,6 +64,12 @@ export class Commit {
   }
 
   static readCommitSync(gitDir: string, hash: string): Commit {
+    const packs = Packs.initializeSync(gitDir);
+    if (packs.hasPackFiles) {
+      const body = packs.unpackGitObjectSync(hash);
+      const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
+      return new Commit(gitDir, hash, data);
+    }
     const deflatedData = fs.readFileSync(getObjectPath(gitDir, hash));
     const data = zlib.inflateSync(deflatedData).toString('utf8');
     return new Commit(gitDir, hash, data);

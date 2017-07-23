@@ -34,13 +34,6 @@ const HASH_START_POSITION = HASH_COUNT_POSITION + 4;
 const packsCache = LRU<Packs>(4);
 const packedObjectCache = LRU<Buffer>(2048);
 
-const openCounts: {
-  [fileName: string]: {
-    fd: number;
-    count: number;
-  };
-} = {};
-
 export interface PackedIndex {
   offset: number;
   fileIndex: number;
@@ -51,8 +44,8 @@ export interface PackedIndexDict {
 }
 
 class PackedObject {
-  type: ObjectTypeEnum;
-  size: number;
+  readonly type: ObjectTypeEnum;
+  readonly size: number;
   offset: number;
 
   constructor(idx: PackedIndex, buff: Buffer) {
@@ -74,7 +67,7 @@ class PackedObject {
 
 function setupPackedIndexDict(idxFileBuffer: Buffer, fileIndex: number, dict: PackedIndexDict) {
   if (idxFileBuffer.readUInt32BE(0) !== 0xff744f63 || idxFileBuffer.readUInt32BE(4) !== 2) {
-    throw new Error('only v2 pack index is supported.');
+    throw new Error('Only v2 pack-*.idx files are supported.');
   }
 
   const n = idxFileBuffer.readUInt32BE(HASH_COUNT_POSITION);
@@ -85,29 +78,33 @@ function setupPackedIndexDict(idxFileBuffer: Buffer, fileIndex: number, dict: Pa
   }
 }
 
-const creatings: { [gitDir: string]: Promise<Packs | undefined> } = {};
+const processings: { [gitDir: string]: Promise<Packs> } = {};
 
 export class Packs {
-  constructor(
-    public packDir: string,
-    public packFileNames: string[],
-    public packedIndexDict: PackedIndexDict,
-  ) { }
+  readonly hasPackFiles: boolean;
 
-  static async create(gitDir: string): Promise<Packs | undefined> {
-    const cache = packsCache.get(gitDir);
-    if (cache) return cache;
-    if (creatings[gitDir]) return creatings[gitDir];
-    const promise = this._create(gitDir);
-    creatings[gitDir] = promise;
+  constructor(
+    readonly packDir: string,
+    readonly packFileNames: string[] = [],
+    readonly packedIndexDict: PackedIndexDict = {},
+  ) {
+    this.hasPackFiles = !!this.packFileNames.length;
+  }
+
+  static async initialize(gitDir: string): Promise<Packs> {
+    const packs = packsCache.get(gitDir);
+    if (packs) return packs;
+    if (processings[gitDir]) return processings[gitDir];
+    const promise = this._initialize(gitDir);
+    processings[gitDir] = promise;
     return await promise.then(packs => {
-      delete creatings[gitDir];
+      delete processings[gitDir];
       packs && packsCache.set(gitDir, packs);
       return packs;
     });
   }
 
-  static async _create(gitDir: string): Promise<Packs | undefined> {
+  static async _initialize(gitDir: string): Promise<Packs> {
     const packDir = path.join(gitDir, 'objects', 'pack');
     let fileNames: string[];
     try {
@@ -115,10 +112,10 @@ export class Packs {
         .filter(name => /\.idx$/.test(name))
         .map(name => name.split(".").shift() as string);
     } catch (e) {
-      return;
+      return new Packs(gitDir);
     }
     if (!fileNames.length) {
-      return;
+      return new Packs(gitDir);
     }
     const packedIndexDict: PackedIndexDict = {};
     for (let i = 0; i < fileNames.length; i++) {
@@ -128,16 +125,43 @@ export class Packs {
     return new Packs(packDir, fileNames, packedIndexDict);
   }
 
-  static createSync(gitDir: string) {
-
+  static initializeSync(gitDir: string): Packs {
+    let packs = packsCache.get(gitDir);
+    if (packs) {
+      return packs;
+    }
+    const packDir = path.join(gitDir, 'objects', 'pack');
+    let fileNames: string[];
+    try {
+      fileNames = (fs.readdirSync(packDir) as string[])
+        .filter(name => /\.idx$/.test(name))
+        .map(name => name.split(".").shift() as string);
+    } catch (e) {
+      packs = new Packs(gitDir);
+      packsCache.set(gitDir, packs);
+      return packs;
+    }
+    if (!fileNames.length) {
+      packs = new Packs(gitDir);
+      packsCache.set(gitDir, packs);
+      return packs;
+    }
+    const packedIndexDict: PackedIndexDict = {};
+    for (let i = 0; i < fileNames.length; i++) {
+      const buff = fs.readFileSync(path.join(packDir, fileNames[i] + ".idx"));
+      setupPackedIndexDict(buff, i, packedIndexDict);
+    }
+    packs = new Packs(packDir, fileNames, packedIndexDict);
+    packsCache.set(gitDir, packs);
+    return packs;
   }
 
-  async unpackGitObject(hash: string): Promise<Buffer | undefined> {
+  async unpackGitObject(hash: string): Promise<Buffer> {
     const idx = this.packedIndexDict[hash];
     const key = `${idx.fileIndex}:${idx.offset}`;
     let dst: Buffer;
     if (!idx) {
-      return;
+      throw new Error(`${hash} is not found.`);
     }
     dst = packedObjectCache.get(key);
     if (dst) {
@@ -155,8 +179,31 @@ export class Packs {
     return dst;
   }
 
-  async _unpackGitObject(fd: number, idx: PackedIndex): Promise<Buffer> {
-    let dst: Buffer | null = null;
+  unpackGitObjectSync(hash: string): Buffer {
+    const idx = this.packedIndexDict[hash];
+    const key = `${idx.fileIndex}:${idx.offset}`;
+    let dst: Buffer;
+    if (!idx) {
+      throw new Error(`${hash} is not found.`);
+    }
+    dst = packedObjectCache.get(key);
+    if (dst) {
+      return dst;
+    }
+    const filePath = path.join(this.packDir, this.packFileNames[idx.fileIndex] + '.pack');
+    const fd = fs.openSync(filePath, 'r');
+    try {
+      dst = this._unpackGitObjectSync(fd, idx);
+    } catch (e) {
+      throw e;
+    } finally {
+      fs.closeSync(fd);
+    }
+    return dst;
+  }
+
+  private async _unpackGitObject(fd: number, idx: PackedIndex): Promise<Buffer> {
+    let dst: Buffer;
     const key = `${idx.fileIndex}:${idx.offset}`;
     dst = packedObjectCache.get(key);
     if (dst) {
@@ -187,6 +234,38 @@ export class Packs {
     return dst;
   }
 
+  private _unpackGitObjectSync(fd: number, idx: PackedIndex): Buffer {
+    let dst: Buffer;
+    const key = `${idx.fileIndex}:${idx.offset}`;
+    dst = packedObjectCache.get(key);
+    if (dst) {
+      return dst;
+    }
+    const head = Buffer.alloc(32);
+    fs.readSync(fd, head, 0, 32, idx.offset);
+    const po = new PackedObject(idx, head);
+    switch (po.type) {
+      case ObjectTypeEnum.COMMIT:
+      case ObjectTypeEnum.TREE:
+      case ObjectTypeEnum.BLOB:
+      case ObjectTypeEnum.TAG: {
+        const buff = Buffer.alloc(po.size * 2 + 32);
+        fs.readSync(fd, buff, 0, buff.length, idx.offset + po.offset);
+        dst = zlib.inflateSync(buff);
+        break;
+      }
+      case ObjectTypeEnum.OFS_DELTA:
+      case ObjectTypeEnum.REF_DELTA:
+        dst = this._unpackDeltaObjectSync(fd, idx, po, head);
+        break;
+    }
+    if (!dst) {
+      throw new Error(`${po.type} is a invalid object type.`);
+    }
+    packedObjectCache.set(key, dst);
+    return dst;
+  }
+
   private async _unpackDeltaObject(fd: number, idx: PackedIndex, po: PackedObject, head: Buffer): Promise<Buffer> {
     let src: Buffer;
     if (po.type === ObjectTypeEnum.OFS_DELTA) {
@@ -203,6 +282,26 @@ export class Packs {
     const buff = Buffer.alloc(po.size * 2 + 32);
     await readAsync(fd, buff, 0, buff.length, idx.offset + po.offset);
     const delta = await inflateAsync(buff);
+    const dst = patchDelta(src, delta);
+    return dst;
+  }
+
+  private _unpackDeltaObjectSync(fd: number, idx: PackedIndex, po: PackedObject, head: Buffer): Buffer {
+    let src: Buffer;
+    if (po.type === ObjectTypeEnum.OFS_DELTA) {
+      const [baseOffset, offset] = readBaseOffset(head, po.offset);
+      po.offset = offset;
+      src = this._unpackGitObjectSync(fd, {
+        offset: idx.offset - baseOffset,
+        fileIndex: idx.fileIndex
+      });
+    } else {
+      const hash = head.slice(po.offset, po.offset += 20).toString('hex');
+      src = this.unpackGitObjectSync(hash);
+    }
+    const buff = Buffer.alloc(po.size * 2 + 32);
+    fs.readSync(fd, buff, 0, buff.length, idx.offset + po.offset);
+    const delta = zlib.inflateSync(buff);
     const dst = patchDelta(src, delta);
     return dst;
   }

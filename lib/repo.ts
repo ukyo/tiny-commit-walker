@@ -112,6 +112,53 @@ export class Repository {
     };
   }
 
+  private _initRefsSync() {
+    const createDict = (dir: 'heads' | 'tags') => {
+      const dict: { [name: string]: string } = {};
+      try {
+        const names = fs.readdirSync(path.join(this.gitDir, 'refs', dir));
+        for (let i = 0; i < names.length; i++) {
+          const name = names[i];
+          const hash = fs.readFileSync(path.join(this.gitDir, 'refs', dir, name), 'utf8').trim();
+          dict[name] = hash; 
+        }
+      } catch (e) { }
+      return dict;
+    };
+
+    const readCommits = (dict: { [name: string]: string }) => {
+      return Object.keys(dict).map(name => {
+        return {
+          name,
+          commit: Commit.readCommitSync(this.gitDir, dict[name])
+        };
+      });
+    };
+
+    const branchDict = createDict('heads');
+    const tagDict = createDict('tags');
+
+    try {
+      const s = fs.readFileSync(path.join(this.gitDir, 'info', 'refs'), 'utf8');
+      const lines = s.trim().split('\n').forEach((line: string) => {
+        const [hash, ref] = line.split(/\s+/);
+        const name = ref.split('/').pop() as string;
+        if (/^refs\/heads\//.test(ref)) {
+          if (branchDict[name]) return;
+          branchDict[name] = hash;
+        } else {
+          if (tagDict[name]) return;
+          tagDict[name] = hash;
+        }
+      });
+    } catch (e) { }
+
+    this._refs = {
+      heads: readCommits(branchDict),
+      tags: readCommits(tagDict),
+    };
+  }
+
   async readHead(): Promise<HEAD> {
     const s = (await readFileAsync(path.join(this.gitDir, 'HEAD'), 'utf8')).trim();
     if (s.startsWith('ref')) {
@@ -155,14 +202,9 @@ export class Repository {
     return this._refs[dir];
   }
 
-  private _readBranchesOrTagsSync(dir: string): (Tag | Branch)[] {
-    const names = fs.readdirSync(path.join(this.gitDir, 'refs', dir));
-    return names.map(name => {
-      return {
-        name,
-        commit: this._readCommitByBranchOrTagSync(dir, name),
-      }
-    });
+  private _readBranchesOrTagsSync(dir: 'heads' | 'tags'): (Tag | Branch)[] {
+    if (!this._refs) this._initRefsSync();
+    return this._refs[dir];
   }
 
   private async _readCommitByBranchOrTag(dir: 'heads' | 'tags', name: string): Promise<Commit> {
@@ -172,9 +214,11 @@ export class Repository {
     return branchOrTag.commit;
   }
 
-  private _readCommitByBranchOrTagSync(dir: string, name: string): Commit {
-    const hash = fs.readFileSync(path.join(this.gitDir, 'refs', dir, name), 'utf8').trim();
-    return Commit.readCommitSync(this.gitDir, hash);
+  private _readCommitByBranchOrTagSync(dir: 'heads' | 'tags', name: string): Commit {
+    if (!this._refs) this._initRefsSync();
+    const branchOrTag = this._refs[dir].find(o => o.name === name);
+    if (!branchOrTag) throw new Error(`refs/${dir}/${name} is not found.`);
+    return branchOrTag.commit;
   }
 
   async readBranches(): Promise<Branch[]> {
