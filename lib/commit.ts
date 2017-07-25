@@ -12,12 +12,12 @@ export class Commit {
   readonly type: string;
   readonly size: number;
   readonly body: string;
-  private _packs: Packs;
 
   constructor(
     readonly gitDir: string,
     readonly hash: string,
     readonly data: string,
+    private _packs: Packs,
   ) {
     const [head, ...rest] = data.split('\u0000');
     const [type, size] = head.split(/\s/);
@@ -44,35 +44,50 @@ export class Commit {
   }
   
   async walk(parentHash = this.baseParentHash) {
-    return await Commit.readCommit(this.gitDir, parentHash);
+    return await Commit.readCommit(this.gitDir, parentHash, this._packs);
   }
 
   walkSync(parentHash = this.baseParentHash) {
-    return Commit.readCommitSync(this.gitDir, parentHash);
+    return Commit.readCommitSync(this.gitDir, parentHash, this._packs);
   }
 
-  static async readCommit(gitDir: string, hash: string): Promise<Commit> {
-    const packs = await Packs.initialize(gitDir);
+  static async readCommit(gitDir: string, hash: string, packs: Packs): Promise<Commit> {
     if (packs.hasPackFiles) {
       const body = await packs.unpackGitObject(hash);
+      const s = body.toString('utf8');
+      if (s.startsWith('object')) {
+        // console.log(s, (s.match(/[a-f0-9]{40}/) as string[])[0]);        
+        const commit = await Commit.readCommit(gitDir, (s.match(/[a-f0-9]{40}/) as string[])[0], packs);
+        // console.log(commit);
+        return commit;
+      }
       const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
-      return new Commit(gitDir, hash, data);
+      return new Commit(gitDir, hash, data, packs);
     }
     const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
     const data = (await inflateAsync(deflatedData)).toString('utf8');
-    return new Commit(gitDir, hash, data);
+    if (data.startsWith('tag')) {
+      return await Commit.readCommit(gitDir, (data.match(/[a-f0-9]{40}/) as string[])[0], packs);
+    }
+    return new Commit(gitDir, hash, data, packs);
   }
 
-  static readCommitSync(gitDir: string, hash: string): Commit {
-    const packs = Packs.initializeSync(gitDir);
+  static readCommitSync(gitDir: string, hash: string, packs: Packs): Commit {
     if (packs.hasPackFiles) {
       const body = packs.unpackGitObjectSync(hash);
+      const s = body.toString('utf8');
+      if (s.startsWith('object')) {
+        return Commit.readCommitSync(gitDir, (s.match(/[a-f0-9]{40}/) as string[])[0], packs);
+      }
       const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
-      return new Commit(gitDir, hash, data);
+      return new Commit(gitDir, hash, data, packs);
     }
     const deflatedData = fs.readFileSync(getObjectPath(gitDir, hash));
     const data = zlib.inflateSync(deflatedData).toString('utf8');
-    return new Commit(gitDir, hash, data);
+    if (data.startsWith('tag')) {
+      return Commit.readCommitSync(gitDir, (data.match(/[a-f0-9]{40}/) as string[])[0], packs);
+    }
+    return new Commit(gitDir, hash, data, packs);
   }
 }
 
