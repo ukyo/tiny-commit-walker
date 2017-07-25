@@ -53,16 +53,15 @@ export class Commit {
 
   static async readCommit(gitDir: string, hash: string, packs: Packs): Promise<Commit> {
     if (packs.hasPackFiles) {
-      const body = await packs.unpackGitObject(hash);
-      const s = body.toString('utf8');
-      if (s.startsWith('object')) {
-        // console.log(s, (s.match(/[a-f0-9]{40}/) as string[])[0]);        
-        const commit = await Commit.readCommit(gitDir, (s.match(/[a-f0-9]{40}/) as string[])[0], packs);
-        // console.log(commit);
-        return commit;
-      }
-      const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
-      return new Commit(gitDir, hash, data, packs);
+      try {
+        const body = await packs.unpackGitObject(hash);
+        const s = body.toString('utf8');
+        if (s.startsWith('object')) {
+          return await Commit.readCommit(gitDir, (s.match(/[a-f0-9]{40}/) as string[])[0], packs);
+        }
+        const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
+        return new Commit(gitDir, hash, data, packs);
+      } catch (e) { }
     }
     const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
     const data = (await inflateAsync(deflatedData)).toString('utf8');
@@ -74,13 +73,15 @@ export class Commit {
 
   static readCommitSync(gitDir: string, hash: string, packs: Packs): Commit {
     if (packs.hasPackFiles) {
-      const body = packs.unpackGitObjectSync(hash);
-      const s = body.toString('utf8');
-      if (s.startsWith('object')) {
-        return Commit.readCommitSync(gitDir, (s.match(/[a-f0-9]{40}/) as string[])[0], packs);
-      }
-      const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
-      return new Commit(gitDir, hash, data, packs);
+      try {
+        const body = packs.unpackGitObjectSync(hash);
+        const s = body.toString('utf8');
+        if (s.startsWith('object')) {
+          return Commit.readCommitSync(gitDir, (s.match(/[a-f0-9]{40}/) as string[])[0], packs);
+        }
+        const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
+        return new Commit(gitDir, hash, data, packs);
+      } catch (e) { }
     }
     const deflatedData = fs.readFileSync(getObjectPath(gitDir, hash));
     const data = zlib.inflateSync(deflatedData).toString('utf8');
