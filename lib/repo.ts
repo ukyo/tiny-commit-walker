@@ -30,6 +30,8 @@ export interface HEAD {
   commit?: Commit;
 }
 
+const processings: { [gitDir: string]: Promise<void> } = {};
+
 export class Repository {
   private _refs: {
     heads: Branch[];
@@ -74,6 +76,12 @@ export class Repository {
   }
 
   private async _initRefs() {
+    if (this._refs) {
+      return;
+    }
+    if (processings[this.gitDir]) {
+      return await processings[this.gitDir];
+    }
     if (!this._packs) {
       this._packs = await Packs.initialize(this.gitDir);      
     }
@@ -108,13 +116,21 @@ export class Repository {
       addInfoRefs(s, branchDict, tagDict);
     } catch (e) { }
 
-    this._refs = {
-      heads: await readCommits(branchDict),
-      tags: await readCommits(tagDict),
-    };
+    const promise = Promise.all([
+      readCommits(branchDict),
+      readCommits(tagDict),
+    ]).then(([heads, tags]) => {
+      this._refs = { heads, tags };
+      delete processings[this.gitDir];
+    });
+    processings[this.gitDir] = promise;
+    return await promise;
   }
 
   private _initRefsSync() {
+    if (this._refs) {
+      return;
+    }
     if (!this._packs) {
       this._packs = Packs.initializeSync(this.gitDir);
     }
