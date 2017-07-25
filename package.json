@@ -1,6 +1,6 @@
 {
   "name": "tiny-commit-walker",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "tiny commit walker",
   "main": "index.js",
   "typings": "dist/index.d.ts",

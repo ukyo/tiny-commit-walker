@@ -85,15 +85,19 @@
 								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="_repo_.repository.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_repo_.repository.html#gitdir" class="tsd-kind-icon">git<wbr>Dir</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_repo_.repository.html#_packs" class="tsd-kind-icon">_packs</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_repo_.repository.html#_refs" class="tsd-kind-icon">_refs</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_repo_.repository.html#_findcommitfromrefs" class="tsd-kind-icon">_find<wbr>Commit<wbr>From<wbr>Refs</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_repo_.repository.html#_initrefs" class="tsd-kind-icon">_init<wbr>Refs</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_repo_.repository.html#_initrefssync" class="tsd-kind-icon">_init<wbr>Refs<wbr>Sync</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_repo_.repository.html#_readbranchesortags" class="tsd-kind-icon">_read<wbr>Branches<wbr>OrTags</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_repo_.repository.html#_readbranchesortagssync" class="tsd-kind-icon">_read<wbr>Branches<wbr>OrTags<wbr>Sync</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_repo_.repository.html#_readcommitbybranchortag" class="tsd-kind-icon">_read<wbr>Commit<wbr>ByBranch<wbr>OrTag</a></li>
@@ -127,7 +131,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L26">repo.ts:26</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L40">repo.ts:40</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -141,38 +145,113 @@
 					</ul>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="gitdir" class="tsd-anchor"></a>
-					<h3>git<wbr>Dir</h3>
-					<div class="tsd-signature tsd-kind-icon">git<wbr>Dir<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_packs" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _packs</h3>
+					<div class="tsd-signature tsd-kind-icon">_packs<span class="tsd-signature-symbol">:</span> <a href="_pack_.packs.html" class="tsd-signature-type">Packs</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L27">repo.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L40">repo.ts:40</a></li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_refs" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _refs</h3>
+					<div class="tsd-signature tsd-kind-icon">_refs<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L36">repo.ts:36</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+						</ul>
+					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="_readbranchesortags" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _read<wbr>Branches<wbr>OrTags</h3>
+					<a name="_findcommitfromrefs" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _find<wbr>Commit<wbr>From<wbr>Refs</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_read<wbr>Branches<wbr>OrTags<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">(</span><a href="../interfaces/_repo_.branch.html" class="tsd-signature-type">Branch</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_repo_.tag.html" class="tsd-signature-type">Tag</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">_find<wbr>Commit<wbr>From<wbr>Refs<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L101">repo.ts:101</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L230">repo.ts:230</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>dir: <span class="tsd-signature-type">string</span></h5>
+									<h5>dir: <a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a></h5>
+								</li>
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_commit_.commit.html" class="tsd-signature-type">Commit</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_initrefs" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _init<wbr>Refs</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_init<wbr>Refs<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L78">repo.ts:78</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_initrefssync" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _init<wbr>Refs<wbr>Sync</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_init<wbr>Refs<wbr>Sync<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L130">repo.ts:130</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_readbranchesortags" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _read<wbr>Branches<wbr>OrTags</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_read<wbr>Branches<wbr>OrTags<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">(</span><a href="../interfaces/_repo_.branch.html" class="tsd-signature-type">Branch</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_repo_.tag.html" class="tsd-signature-type">Tag</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L220">repo.ts:220</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>dir: <a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">(</span><a href="../interfaces/_repo_.branch.html" class="tsd-signature-type">Branch</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_repo_.tag.html" class="tsd-signature-type">Tag</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -183,19 +262,19 @@
 					<a name="_readbranchesortagssync" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _read<wbr>Branches<wbr>OrTags<wbr>Sync</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_read<wbr>Branches<wbr>OrTags<wbr>Sync<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><a href="../interfaces/_repo_.branch.html" class="tsd-signature-type">Branch</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_repo_.tag.html" class="tsd-signature-type">Tag</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">_read<wbr>Branches<wbr>OrTags<wbr>Sync<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><a href="../interfaces/_repo_.branch.html" class="tsd-signature-type">Branch</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_repo_.tag.html" class="tsd-signature-type">Tag</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L111">repo.ts:111</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L225">repo.ts:225</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>dir: <span class="tsd-signature-type">string</span></h5>
+									<h5>dir: <a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">(</span><a href="../interfaces/_repo_.branch.html" class="tsd-signature-type">Branch</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_repo_.tag.html" class="tsd-signature-type">Tag</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -206,19 +285,19 @@
 					<a name="_readcommitbybranchortag" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _read<wbr>Commit<wbr>ByBranch<wbr>OrTag</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_read<wbr>Commit<wbr>ByBranch<wbr>OrTag<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">_read<wbr>Commit<wbr>ByBranch<wbr>OrTag<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L121">repo.ts:121</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L236">repo.ts:236</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>dir: <span class="tsd-signature-type">string</span></h5>
+									<h5>dir: <a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a></h5>
 								</li>
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
@@ -232,19 +311,19 @@
 					<a name="_readcommitbybranchortagsync" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _read<wbr>Commit<wbr>ByBranch<wbr>OrTag<wbr>Sync</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_read<wbr>Commit<wbr>ByBranch<wbr>OrTag<wbr>Sync<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a></li>
+						<li class="tsd-signature tsd-kind-icon">_read<wbr>Commit<wbr>ByBranch<wbr>OrTag<wbr>Sync<span class="tsd-signature-symbol">(</span>dir<span class="tsd-signature-symbol">: </span><a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_commit_.commit.html" class="tsd-signature-type">Commit</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L126">repo.ts:126</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L241">repo.ts:241</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>dir: <span class="tsd-signature-type">string</span></h5>
+									<h5>dir: <a href="../modules/_repo_.html#refs_dir" class="tsd-signature-type">REFS_DIR</a></h5>
 								</li>
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
@@ -264,7 +343,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L131">repo.ts:131</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L246">repo.ts:246</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_repo_.branch.html" class="tsd-signature-type">Branch</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -281,7 +360,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L135">repo.ts:135</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L250">repo.ts:250</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_repo_.branch.html" class="tsd-signature-type">Branch</a><span class="tsd-signature-symbol">[]</span></h4>
@@ -298,7 +377,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L139">repo.ts:139</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L254">repo.ts:254</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -321,7 +400,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L143">repo.ts:143</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L258">repo.ts:258</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -344,7 +423,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L155">repo.ts:155</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L270">repo.ts:270</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -367,7 +446,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L159">repo.ts:159</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L274">repo.ts:274</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -390,7 +469,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L63">repo.ts:63</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L174">repo.ts:174</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_repo_.head.html" class="tsd-signature-type">HEAD</a><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -407,7 +486,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L82">repo.ts:82</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L197">repo.ts:197</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_repo_.head.html" class="tsd-signature-type">HEAD</a></h4>
@@ -424,7 +503,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L147">repo.ts:147</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L262">repo.ts:262</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_repo_.tag.html" class="tsd-signature-type">Tag</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -441,7 +520,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L151">repo.ts:151</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L266">repo.ts:266</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_repo_.tag.html" class="tsd-signature-type">Tag</a><span class="tsd-signature-symbol">[]</span></h4>
@@ -458,7 +537,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L29">repo.ts:29</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L44">repo.ts:44</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -481,7 +560,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/cbf7a84/lib/repo.ts#L46">repo.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/8d41165/lib/repo.ts#L61">repo.ts:61</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -509,7 +588,13 @@
 						<a href="../modules/_commit_.html">"commit"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="../modules/_delta_.html">"delta"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="../modules/_index_.html">"index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_pack_.html">"pack"</a>
 					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="../modules/_repo_.html">"repo"</a>
@@ -526,8 +611,20 @@
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="_repo_.repository.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="_repo_.repository.html#gitdir" class="tsd-kind-icon">git<wbr>Dir</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_repo_.repository.html#_packs" class="tsd-kind-icon">_packs</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_repo_.repository.html#_refs" class="tsd-kind-icon">_refs</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_repo_.repository.html#_findcommitfromrefs" class="tsd-kind-icon">_find<wbr>Commit<wbr>From<wbr>Refs</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_repo_.repository.html#_initrefs" class="tsd-kind-icon">_init<wbr>Refs</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_repo_.repository.html#_initrefssync" class="tsd-kind-icon">_init<wbr>Refs<wbr>Sync</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="_repo_.repository.html#_readbranchesortags" class="tsd-kind-icon">_read<wbr>Branches<wbr>OrTags</a>
@@ -585,10 +682,16 @@
 						<a href="../interfaces/_repo_.branch.html" class="tsd-kind-icon">Branch</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/_repo_.dict.html" class="tsd-kind-icon">Dict</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/_repo_.head.html" class="tsd-kind-icon">HEAD</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/_repo_.tag.html" class="tsd-kind-icon">Tag</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_repo_.html#refs_dir" class="tsd-kind-icon">REFS_<wbr>DIR</a>
 					</li>
 				</ul>
 			</nav>
