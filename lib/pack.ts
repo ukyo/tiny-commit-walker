@@ -39,9 +39,7 @@ export interface PackedIndex {
   fileIndex: number;
 }
 
-export interface PackedIndexDict {
-  [hash: string]: PackedIndex;
-}
+export type PackedIndexMap = Map<string, PackedIndex>;
 
 class PackedObject {
   readonly type: ObjectTypeEnum;
@@ -65,7 +63,7 @@ class PackedObject {
   }
 }
 
-function setupPackedIndexDict(idxFileBuffer: Buffer, fileIndex: number, dict: PackedIndexDict) {
+function setupPackedIndexMap(idxFileBuffer: Buffer, fileIndex: number, map: PackedIndexMap) {
   if (idxFileBuffer.readUInt32BE(0) !== 0xff744f63 || idxFileBuffer.readUInt32BE(4) !== 2) {
     throw new Error('Only v2 pack-*.idx files are supported.');
   }
@@ -74,7 +72,7 @@ function setupPackedIndexDict(idxFileBuffer: Buffer, fileIndex: number, dict: Pa
   for (let i = 0; i < n; i++) {
     const hash = idxFileBuffer.slice(HASH_START_POSITION + i * 20, HASH_START_POSITION + (i + 1) * 20).toString('hex');
     const offset = idxFileBuffer.readUInt32BE(HASH_START_POSITION + n * 24 + i * 4);
-    dict[hash] = { offset, fileIndex };
+    map.set(hash, { offset, fileIndex });
   }
 }
 
@@ -86,7 +84,7 @@ export class Packs {
   constructor(
     readonly packDir: string,
     readonly packFileNames: string[] = [],
-    readonly packedIndexDict: PackedIndexDict = {},
+    readonly packedIndexMap: PackedIndexMap = new Map(),
   ) {
     this.hasPackFiles = !!this.packFileNames.length;
   }
@@ -117,12 +115,12 @@ export class Packs {
     if (!fileNames.length) {
       return new Packs(gitDir);
     }
-    const packedIndexDict: PackedIndexDict = {};
+    const packedIndexMap: PackedIndexMap = new Map();
     for (let i = 0; i < fileNames.length; i++) {
       const buff = await readFileAsync(path.join(packDir, fileNames[i] + ".idx"));
-      setupPackedIndexDict(buff, i, packedIndexDict);
+      setupPackedIndexMap(buff, i, packedIndexMap);
     }
-    return new Packs(packDir, fileNames, packedIndexDict);
+    return new Packs(packDir, fileNames, packedIndexMap);
   }
 
   static initializeSync(gitDir: string): Packs {
@@ -146,24 +144,23 @@ export class Packs {
       packsCache.set(gitDir, packs);
       return packs;
     }
-    const packedIndexDict: PackedIndexDict = {};
+    const packedIndexMap: PackedIndexMap = new Map();
     for (let i = 0; i < fileNames.length; i++) {
       const buff = fs.readFileSync(path.join(packDir, fileNames[i] + ".idx"));
-      setupPackedIndexDict(buff, i, packedIndexDict);
+      setupPackedIndexMap(buff, i, packedIndexMap);
     }
-    packs = new Packs(packDir, fileNames, packedIndexDict);
+    packs = new Packs(packDir, fileNames, packedIndexMap);
     packsCache.set(gitDir, packs);
     return packs;
   }
 
   async unpackGitObject(hash: string): Promise<Buffer> {
-    const idx = this.packedIndexDict[hash];
-    const key = `${idx.fileIndex}:${idx.offset}`;
-    let dst: Buffer;
+    const idx = this.packedIndexMap.get(hash);
     if (!idx) {
       throw new Error(`${hash} is not found.`);
     }
-    dst = packedObjectCache.get(key);
+    const key = `${idx.fileIndex}:${idx.offset}`;
+    let dst: Buffer = packedObjectCache.get(key);
     if (dst) {
       return dst;
     }
@@ -180,12 +177,12 @@ export class Packs {
   }
 
   unpackGitObjectSync(hash: string): Buffer {
-    const idx = this.packedIndexDict[hash];
-    const key = `${idx.fileIndex}:${idx.offset}`;
-    let dst: Buffer;
+    const idx = this.packedIndexMap.get(hash);
     if (!idx) {
       throw new Error(`${hash} is not found.`);
     }
+    const key = `${idx.fileIndex}:${idx.offset}`;
+    let dst: Buffer;
     dst = packedObjectCache.get(key);
     if (dst) {
       return dst;
