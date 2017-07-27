@@ -10,9 +10,7 @@ const readDirAsync = promisify(fs.readdir);
 
 export type REFS_DIR = 'heads' | 'tags';
 
-export interface Dict {
-  [name: string]: string;
-}
+export type StringMap = Map<string, string>;
 
 export interface Branch {
   name: string;
@@ -86,39 +84,41 @@ export class Repository {
       this._packs = await Packs.initialize(this.gitDir);      
     }
 
-    const createDict = async (dir: REFS_DIR) => {
-      const dict: Dict = {};
+    const createMap = async (dir: REFS_DIR) => {
+      const map: StringMap = new Map();
       try {
         const names = await readDirAsync(path.join(this.gitDir, 'refs', dir));
         for (let i = 0; i < names.length; i++) {
           const name = names[i];
           const hash = (await readFileAsync(path.join(this.gitDir, 'refs', dir, name), 'utf8')).trim();
-          dict[name] = hash; 
+          map.set(name, hash); 
         }
       } catch (e) { }
-      return dict;
+      return map;
     };
 
-    const readCommits = async (dict: Dict) => {
-      return await Promise.all(Object.keys(dict).map(async name => {
-        return {
+    const readCommits = async (map: StringMap) => {
+      const brachOrTags: Branch[] | Tag[] = [];
+      for (const [name, hash] of map.entries()) {
+        brachOrTags[brachOrTags.length] = {
           name,
-          commit: await Commit.readCommit(this.gitDir, dict[name], this._packs)
+          commit: await Commit.readCommit(this.gitDir, hash, this._packs)
         };
-      }));
+      }
+      return brachOrTags;
     };
 
-    const branchDict = await createDict('heads');
-    const tagDict = await createDict('tags');
+    const branchMap = await createMap('heads');
+    const tagMap = await createMap('tags');
 
     try {
       const s = await readFileAsync(path.join(this.gitDir, 'info', 'refs'), 'utf8');
-      addInfoRefs(s, branchDict, tagDict);
+      addInfoRefs(s, branchMap, tagMap);
     } catch (e) { }
 
     const promise = Promise.all([
-      readCommits(branchDict),
-      readCommits(tagDict),
+      readCommits(branchMap),
+      readCommits(tagMap),
     ]).then(([heads, tags]) => {
       this._refs = { heads, tags };
       delete processings[this.gitDir];
@@ -135,39 +135,41 @@ export class Repository {
       this._packs = Packs.initializeSync(this.gitDir);
     }
 
-    const createDict = (dir: REFS_DIR) => {
-      const dict: Dict = {};
+    const createMap = (dir: REFS_DIR) => {
+      const map: StringMap = new Map();
       try {
         const names = fs.readdirSync(path.join(this.gitDir, 'refs', dir));
         for (let i = 0; i < names.length; i++) {
           const name = names[i];
           const hash = fs.readFileSync(path.join(this.gitDir, 'refs', dir, name), 'utf8').trim();
-          dict[name] = hash; 
+          map.set(name, hash); 
         }
       } catch (e) { }
-      return dict;
+      return map;
     };
 
-    const readCommits = (dict: Dict) => {
-      return Object.keys(dict).map(name => {
-        return {
+    const readCommits = (map: StringMap) => {
+      const brachOrTags: Branch[] | Tag[] = [];
+      for (const [name, hash] of map.entries()) {
+        brachOrTags[brachOrTags.length] = {
           name,
-          commit: Commit.readCommitSync(this.gitDir, dict[name], this._packs)
-        };
-      });
+          commit: Commit.readCommitSync(this.gitDir, hash, this._packs)
+        }
+      }
+      return brachOrTags;
     };
 
-    const branchDict = createDict('heads');
-    const tagDict = createDict('tags');
+    const branchMap = createMap('heads');
+    const tagMap = createMap('tags');
 
     try {
       const s = fs.readFileSync(path.join(this.gitDir, 'info', 'refs'), 'utf8');
-      addInfoRefs(s, branchDict, tagDict);
+      addInfoRefs(s, branchMap, tagMap);
     } catch (e) { }
 
     this._refs = {
-      heads: readCommits(branchDict),
-      tags: readCommits(tagDict),
+      heads: readCommits(branchMap),
+      tags: readCommits(tagMap),
     };
   }
 
@@ -276,22 +278,22 @@ export class Repository {
   }
 }
 
-function addInfoRefs(s: string, branchDict: Dict, tagDict: Dict) {
-  const _tagDict: Dict = {};
+function addInfoRefs(s: string, branchMap: StringMap, tagMap: StringMap) {
+  const _tagMap: StringMap = new Map();
   const lines = s.trim().split('\n').forEach((line: string) => {
     const [hash, ref] = line.split(/\s+/);
     let name = ref.split('/').pop() as string;
     if (/^refs\/heads\//.test(ref)) {
-      if (branchDict[name]) return;
-      branchDict[name] = hash;
+      if (branchMap.get(name)) return;
+      branchMap.set(name, hash);
     } else {
       if (name.endsWith('^{}')) {
         name = name.slice(0, -3);
       }
-      _tagDict[name] = hash;
+      _tagMap.set(name, hash);
     }
   });
-  Object.keys(_tagDict).forEach(name => {
-    if (!tagDict[name]) tagDict[name] = _tagDict[name];
-  });
+  for (const [name, hash] of _tagMap.entries()) {
+    if (!tagMap.has(name)) tagMap.set(name, hash);
+  }
 }
