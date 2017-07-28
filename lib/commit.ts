@@ -17,7 +17,7 @@ export class Commit {
     readonly gitDir: string,
     readonly hash: string,
     readonly data: string,
-    private _packs: Packs,
+    private _packs?: Packs,
   ) {
     const [head, ...rest] = data.split('\u0000');
     const [type, size] = head.split(/\s/);
@@ -51,8 +51,8 @@ export class Commit {
     return Commit.readCommitSync(this.gitDir, parentHash, this._packs);
   }
 
-  static async readCommit(gitDir: string, hash: string, packs: Packs): Promise<Commit> {
-    if (packs.hasPackFiles) {
+  static async readCommit(gitDir: string, hash: string, packs?: Packs): Promise<Commit> {
+    if (packs && packs.hasPackFiles) {
       try {
         const body = await packs.unpackGitObject(hash);
         const s = body.toString('utf8');
@@ -71,8 +71,8 @@ export class Commit {
     return new Commit(gitDir, hash, data, packs);
   }
 
-  static readCommitSync(gitDir: string, hash: string, packs: Packs): Commit {
-    if (packs.hasPackFiles) {
+  static readCommitSync(gitDir: string, hash: string, packs?: Packs): Commit {
+    if (packs && packs.hasPackFiles) {
       try {
         const body = packs.unpackGitObjectSync(hash);
         const s = body.toString('utf8');
