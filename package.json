@@ -1,6 +1,6 @@
 {
   "name": "tiny-commit-walker",
-  "version": "0.1.7",
+  "version": "1.0.0",
   "description": "tiny commit walker",
   "main": "index.js",
   "typings": "dist/index.d.ts",
@@ -11,7 +11,7 @@
     "watch:test": "npm run test -- -w",
     "watch": "run-p watch:*",
     "prepublish": "run-s build test",
-    "docs:build": "typedoc --out docs --excludeNotExported",
+    "docs:build": "typedoc --out docs --excludeNotExported --excludePrivate --mode file --exclude '**/index.ts'",
     "docs:touch-nojeykll": "nodetouch docs/.nojekyll",
     "docs": "run-s docs:build docs:touch-nojeykll"
   },
