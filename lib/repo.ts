@@ -8,7 +8,8 @@ const statAsync = promisify(fs.stat);
 const readFileAsync = promisify(fs.readFile);
 const readDirAsync = promisify(fs.readdir);
 
-export type REFS_DIR = 'heads' | 'tags';
+export type REFS_DIR = 'heads' | 'tags' | 'remotes';
+export type BRANCH_DIR = 'heads' | 'remotes';
 
 export type StringMap = Map<string, string>;
 
@@ -34,6 +35,7 @@ export class Repository {
   private _refs: {
     heads: Branch[];
     tags: Tag[];
+    remotes: Branch[];
   };
   private _packs: Packs;
 
@@ -84,14 +86,15 @@ export class Repository {
       this._packs = await Packs.initialize(this.gitDir);      
     }
 
-    const createMap = async (dir: REFS_DIR) => {
+    const createMap = async (dir: string, prefix = '') => {
       const map: StringMap = new Map();
       try {
         const names = await readDirAsync(path.join(this.gitDir, 'refs', dir));
         for (let i = 0; i < names.length; i++) {
           const name = names[i];
+          if (name === 'HEAD') continue;
           const hash = (await readFileAsync(path.join(this.gitDir, 'refs', dir, name), 'utf8')).trim();
-          map.set(name, hash); 
+          map.set(prefix + name, hash); 
         }
       } catch (e) { }
       return map;
@@ -110,17 +113,29 @@ export class Repository {
 
     const branchMap = await createMap('heads');
     const tagMap = await createMap('tags');
+    const remoteBranchMap: StringMap = new Map();
+    try {
+      const dirs = await readDirAsync(path.join(this.gitDir, 'refs', 'remotes'));
+      for (let i = 0; i < dirs.length; i++) {
+        const dir = dirs[i];
+        const map = await createMap(path.join('remotes', dir), `${dir}/`);
+        for (const [key, hash] of map.entries()) {
+          remoteBranchMap.set(key, hash);
+        }
+      }
+    } catch (e) { }
 
     try {
       const s = await readFileAsync(path.join(this.gitDir, 'info', 'refs'), 'utf8');
-      addInfoRefs(s, branchMap, tagMap);
+      addInfoRefs(s, branchMap, tagMap, remoteBranchMap);
     } catch (e) { }
 
     const promise = Promise.all([
       readCommits(branchMap),
       readCommits(tagMap),
-    ]).then(([heads, tags]) => {
-      this._refs = { heads, tags };
+      readCommits(remoteBranchMap),
+    ]).then(([heads, tags, remotes]) => {
+      this._refs = { heads, tags, remotes };
       delete processings[this.gitDir];
     });
     processings[this.gitDir] = promise;
@@ -135,14 +150,14 @@ export class Repository {
       this._packs = Packs.initializeSync(this.gitDir);
     }
 
-    const createMap = (dir: REFS_DIR) => {
+    const createMap = (dir: string, prefix = '') => {
       const map: StringMap = new Map();
       try {
         const names = fs.readdirSync(path.join(this.gitDir, 'refs', dir));
         for (let i = 0; i < names.length; i++) {
           const name = names[i];
           const hash = fs.readFileSync(path.join(this.gitDir, 'refs', dir, name), 'utf8').trim();
-          map.set(name, hash); 
+          map.set(prefix + name, hash); 
         }
       } catch (e) { }
       return map;
@@ -161,15 +176,27 @@ export class Repository {
 
     const branchMap = createMap('heads');
     const tagMap = createMap('tags');
+    const remoteBranchMap: StringMap = new Map();
+    try {
+      const dirs = fs.readdirSync(path.join(this.gitDir, 'refs', 'remotes'));
+      for (let i = 0; i < dirs.length; i++) {
+        const dir = dirs[i];
+        const map = createMap(path.join('remotes', dir), `${dir}/`);
+        for (const [key, hash] of map.entries()) {
+          remoteBranchMap.set(key, hash);
+        }
+      }
+    } catch (e) { }
 
     try {
       const s = fs.readFileSync(path.join(this.gitDir, 'info', 'refs'), 'utf8');
-      addInfoRefs(s, branchMap, tagMap);
+      addInfoRefs(s, branchMap, tagMap, remoteBranchMap);
     } catch (e) { }
 
     this._refs = {
       heads: readCommits(branchMap),
       tags: readCommits(tagMap),
+      remotes: readCommits(remoteBranchMap),
     };
   }
 
@@ -245,20 +272,37 @@ export class Repository {
     return this._findCommitFromRefs(dir, name);
   }
 
-  async readBranches(): Promise<Branch[]> {
-    return await this._readBranchesOrTags('heads');
+  async readBranches(dirs: BRANCH_DIR[] | BRANCH_DIR = ['heads']): Promise<Branch[]> {
+    if (!Array.isArray(dirs)) {
+      dirs = [dirs];
+    }
+    return await Promise
+      .all(dirs.map(async dir => await this._readBranchesOrTags(dir)))
+      .then(results => Array.prototype.concat.apply([], results));
   }
 
-  readBranchesSync(): Branch[] {
-    return this._readBranchesOrTagsSync('heads');
+  readBranchesSync(dirs: BRANCH_DIR[] | BRANCH_DIR = ['heads']): Branch[] {
+    if (!Array.isArray(dirs)) {
+      dirs = [dirs];
+    }
+    return Array.prototype.concat.apply([], dirs.map(dir => this._readBranchesOrTagsSync(dir)));
+
   }
 
   async readCommitByBranch(branchName: string): Promise<Commit> {
-    return await this._readCommitByBranchOrTag('heads', branchName);
+    try {
+      return await this._readCommitByBranchOrTag('heads', branchName);
+    } catch (e) {
+      return await this._readCommitByBranchOrTag('remotes', branchName);
+    }
   }
 
   readCommitByBranchSync(branchName: string): Commit {
-    return this._readCommitByBranchOrTagSync('heads', branchName);
+    try {
+      return this._readCommitByBranchOrTagSync('heads', branchName);
+    } catch (e) {
+      return this._readCommitByBranchOrTagSync('remotes', branchName);
+    }
   }
 
   async readTags(): Promise<Tag[]> {
@@ -278,14 +322,18 @@ export class Repository {
   }
 }
 
-function addInfoRefs(s: string, branchMap: StringMap, tagMap: StringMap) {
+function addInfoRefs(s: string, branchMap: StringMap, tagMap: StringMap, remoteBranchMap: StringMap) {
   const _tagMap: StringMap = new Map();
   const lines = s.trim().split('\n').forEach((line: string) => {
     const [hash, ref] = line.split(/\s+/);
     let name = ref.split('/').pop() as string;
     if (/^refs\/heads\//.test(ref)) {
-      if (branchMap.get(name)) return;
+      if (branchMap.has(name)) return;
       branchMap.set(name, hash);
+    } else if (/^refs\/remotes\//.test(ref)) {
+      name = ref.slice('refs/remotes/'.length);
+      if (remoteBranchMap.has(name) || name.split('/').pop() === 'HEAD') return;
+      remoteBranchMap.set(name, hash);
     } else {
       if (name.endsWith('^{}')) {
         name = name.slice(0, -3);

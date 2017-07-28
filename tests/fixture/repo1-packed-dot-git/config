@@ -5,3 +5,9 @@
 	logallrefupdates = true
 	ignorecase = true
 	precomposeunicode = true
+[remote "origin"]
+	url = https://github.com/ukyo/my-temp-repo.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
