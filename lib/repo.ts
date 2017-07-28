@@ -41,6 +41,9 @@ export class Repository {
 
   constructor(readonly gitDir: string) { }
 
+  /**
+   * Find a git directory. This function find one from current or parents directories.
+   */
   static async findGitDir(repositoryPath = process.cwd()): Promise<string | undefined> {
     try {
       const gitDir = path.resolve(repositoryPath, '.git');
@@ -58,6 +61,9 @@ export class Repository {
     }
   }
 
+  /**
+   * Find a git directory sync. This function find one from current or parents directories.
+   */
   static findGitDirSync(repositoryPath = process.cwd()): string | undefined {
     try {
       const gitDir = path.resolve(repositoryPath, '.git');
@@ -200,6 +206,19 @@ export class Repository {
     };
   }
 
+  /**
+   * Read a infomation of `.git/HEAD`.
+   * 
+   * ```ts
+   * const head = repo.readHead();
+   * // if type is 'branch'
+   * console.log(head.type === 'branch');
+   * console.log(head.branch);
+   * // if type is 'commit'
+   * console.log(head.type === 'commit);
+   * console.log(head.branch);
+   * ```
+   */
   async readHead(): Promise<HEAD> {
     if (!this._packs) {
       this._packs = await Packs.initialize(this.gitDir);      
@@ -223,6 +242,9 @@ export class Repository {
     }
   }
 
+  /**
+   * Read a infomation of `.git/HEAD` sync.
+   */
   readHeadSync(): HEAD {
     if (!this._packs) {
       this._packs = Packs.initializeSync(this.gitDir);      
@@ -272,6 +294,16 @@ export class Repository {
     return this._findCommitFromRefs(dir, name);
   }
 
+  /**
+   * Read branches.
+   * 
+   * ```ts
+   * const heads = await repo.readBranches(); // or await repo.readBranches('heads');
+   * const remotes = await repo.readBranches('remotes');
+   * const allBranches = await repo.readBranches(['heads', 'remotes']);
+   * console.log(heads[0].name, heads[0].commit);
+   * ```
+   */
   async readBranches(dirs: BRANCH_DIR[] | BRANCH_DIR = ['heads']): Promise<Branch[]> {
     if (!Array.isArray(dirs)) {
       dirs = [dirs];
@@ -281,6 +313,9 @@ export class Repository {
       .then(results => Array.prototype.concat.apply([], results));
   }
 
+  /**
+   * Read branches sync.
+   */
   readBranchesSync(dirs: BRANCH_DIR[] | BRANCH_DIR = ['heads']): Branch[] {
     if (!Array.isArray(dirs)) {
       dirs = [dirs];
@@ -289,6 +324,14 @@ export class Repository {
 
   }
 
+  /**
+   * Read a commit by branch name.
+   * 
+   * ```ts
+   * const masterCommit = await repo.readCommitByBranch('master');
+   * const originMasterCommit = await repo.readCommitByBranch('origin/master');
+   * ```
+   */
   async readCommitByBranch(branchName: string): Promise<Commit> {
     try {
       return await this._readCommitByBranchOrTag('heads', branchName);
@@ -297,6 +340,9 @@ export class Repository {
     }
   }
 
+  /**
+   * Read a commit by branch name sync.
+   */
   readCommitByBranchSync(branchName: string): Commit {
     try {
       return this._readCommitByBranchOrTagSync('heads', branchName);
@@ -305,18 +351,38 @@ export class Repository {
     }
   }
 
+  /**
+   * Read tags.
+   * 
+   * ```ts
+   * const tags = await repo.readTags();
+   * ```
+   */
   async readTags(): Promise<Tag[]> {
     return await this._readBranchesOrTags('tags');
   }
 
+  /**
+   * Read tags sync.
+   */
   readTagsSync(): Tag[] {
     return this._readBranchesOrTagsSync('tags');
   }
 
+  /**
+   * Read a commit by tag name.
+   * 
+   * ```ts
+   * const commit = repo.readCommitByTag('v1.0');
+   * ```
+   */
   async readCommitByTag(tagName: string): Promise<Commit> {
     return this._readCommitByBranchOrTag('tags', tagName);
   }
 
+  /**
+   * Read a commit by tag name sync.
+   */
   readCommitByTagSync(tagName: string): Commit {
     return this._readCommitByBranchOrTagSync('tags', tagName);
   }

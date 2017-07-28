@@ -43,10 +43,29 @@ export class Commit {
     return this.parentHashes.slice(1);
   }
   
+  /**
+   * Get parent commit by a parent hash.
+   * 
+   * ```ts
+   * // default is the baseParentHash.
+   * let parentCommit = await commit.walk();
+   * 
+   * // or set a parent hash manually.
+   * parentCommit = await commit.walk(commit.parentHash[1]);
+   * ```
+   */
   async walk(parentHash = this.baseParentHash) {
     return await Commit.readCommit(this.gitDir, parentHash, this._packs);
   }
 
+  /**
+   * Get parent commit by a parent hash sync.
+   * 
+   * ```ts
+   * let parentCommit = commit.walkSync();
+   * parentCommit = commit.walkSync(commit.parentHash[1]);
+   * ```
+   */
   walkSync(parentHash = this.baseParentHash) {
     return Commit.readCommitSync(this.gitDir, parentHash, this._packs);
   }
