@@ -28,9 +28,6 @@ enum ObjectTypeEnum {
   MAX,
 }
 
-const HASH_COUNT_POSITION = (2 + 255) * 4;
-const HASH_START_POSITION = HASH_COUNT_POSITION + 4;
-
 const packsCache = LRU<Packs>(4);
 
 export interface PackedIndex {
@@ -63,23 +60,35 @@ class PackedObject {
 }
 
 function setupPackedIndexMap(idxFileBuffer: Buffer, fileIndex: number, map: PackedIndexMap) {
-  if (idxFileBuffer.readUInt32BE(0) !== 0xff744f63 || idxFileBuffer.readUInt32BE(4) !== 2) {
-    throw new Error('Only v2 pack-*.idx files are supported.');
+  let idxVersion: number;
+  let index = 255 * 4;
+  if (idxFileBuffer.readUInt32BE(0) === 0xff744f63 && idxFileBuffer.readUInt32BE(4) === 2) {
+    idxVersion = 2;
+    index += 2 * 4;
+  } else {
+    idxVersion = 1;
   }
 
-  const n = idxFileBuffer.readUInt32BE(HASH_COUNT_POSITION);
-  let off32 = HASH_START_POSITION + n * 24;
-  let off64 = off32 + n * 4;
-  for (let i = 0; i < n; i++) {
-    const hash = idxFileBuffer.slice(HASH_START_POSITION + i * 20, HASH_START_POSITION + (i + 1) * 20).toString('hex');
-    let offset = idxFileBuffer.readUInt32BE(off32);
-    off32 += 4;
-    if (offset & 0x80000000) {
-      offset = idxFileBuffer.readUInt32BE(off64 * 4294967296);
-      offset += idxFileBuffer.readUInt16BE(off64 += 4);
-      off64 += 4;
+  const n = idxFileBuffer.readUInt32BE(index);
+  index += 4;
+  if (idxVersion > 1) {
+    let off32 = index + n * 24;
+    let off64 = off32 + n * 4;
+    for (let i = 0; i < n; i++) {
+      const hash = idxFileBuffer.slice(index + i * 20, index + (i + 1) * 20).toString('hex');
+      let offset = idxFileBuffer.readUInt32BE(off32);
+      off32 += 4;
+      if (offset & 0x80000000) {
+        offset = idxFileBuffer.readUInt32BE(off64 * 4294967296);
+        offset += idxFileBuffer.readUInt16BE(off64 += 4);
+        off64 += 4;
+      }
+      map.set(hash, { offset, fileIndex });
     }
-    map.set(hash, { offset, fileIndex });
+  } else {
+    for (let i = 0; i < n; i++) {
+      // TODO;
+    }
   }
 }
 
