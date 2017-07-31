@@ -68,9 +68,17 @@ function setupPackedIndexMap(idxFileBuffer: Buffer, fileIndex: number, map: Pack
   }
 
   const n = idxFileBuffer.readUInt32BE(HASH_COUNT_POSITION);
+  let off32 = HASH_START_POSITION + n * 24;
+  let off64 = off32 + n * 4;
   for (let i = 0; i < n; i++) {
     const hash = idxFileBuffer.slice(HASH_START_POSITION + i * 20, HASH_START_POSITION + (i + 1) * 20).toString('hex');
-    const offset = idxFileBuffer.readUInt32BE(HASH_START_POSITION + n * 24 + i * 4);
+    let offset = idxFileBuffer.readUInt32BE(off32);
+    off32 += 4;
+    if (offset & 0x80000000) {
+      offset = idxFileBuffer.readUInt32BE(off64 * 4294967296);
+      offset += idxFileBuffer.readUInt16BE(off64 += 4);
+      off64 += 4;
+    }
     map.set(hash, { offset, fileIndex });
   }
 }
