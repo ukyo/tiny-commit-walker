@@ -32,7 +32,6 @@ const HASH_COUNT_POSITION = (2 + 255) * 4;
 const HASH_START_POSITION = HASH_COUNT_POSITION + 4;
 
 const packsCache = LRU<Packs>(4);
-const packedObjectCache = LRU<Buffer>(2048);
 
 export interface PackedIndex {
   offset: number;
@@ -80,6 +79,7 @@ const processings: { [gitDir: string]: Promise<Packs> } = {};
 
 export class Packs {
   readonly hasPackFiles: boolean;
+  private _packedObjectCache = new Map<string, Buffer>();
 
   constructor(
     readonly packDir: string,
@@ -160,7 +160,7 @@ export class Packs {
       throw new Error(`${hash} is not found.`);
     }
     const key = `${idx.fileIndex}:${idx.offset}`;
-    let dst: Buffer = packedObjectCache.get(key);
+    let dst = this._packedObjectCache.get(key);
     if (dst) {
       return dst;
     }
@@ -182,8 +182,7 @@ export class Packs {
       throw new Error(`${hash} is not found.`);
     }
     const key = `${idx.fileIndex}:${idx.offset}`;
-    let dst: Buffer;
-    dst = packedObjectCache.get(key);
+    let dst = this._packedObjectCache.get(key);
     if (dst) {
       return dst;
     }
@@ -200,9 +199,8 @@ export class Packs {
   }
 
   private async _unpackGitObject(fd: number, idx: PackedIndex): Promise<Buffer> {
-    let dst: Buffer;
     const key = `${idx.fileIndex}:${idx.offset}`;
-    dst = packedObjectCache.get(key);
+    let dst = this._packedObjectCache.get(key);
     if (dst) {
       return dst;
     }
@@ -227,14 +225,13 @@ export class Packs {
     if (!dst) {
       throw new Error(`${po.type} is a invalid object type.`);
     }
-    packedObjectCache.set(key, dst);    
+    this._packedObjectCache.set(key, dst);    
     return dst;
   }
 
   private _unpackGitObjectSync(fd: number, idx: PackedIndex): Buffer {
-    let dst: Buffer;
     const key = `${idx.fileIndex}:${idx.offset}`;
-    dst = packedObjectCache.get(key);
+    let dst = this._packedObjectCache.get(key);
     if (dst) {
       return dst;
     }
@@ -259,7 +256,7 @@ export class Packs {
     if (!dst) {
       throw new Error(`${po.type} is a invalid object type.`);
     }
-    packedObjectCache.set(key, dst);
+    this._packedObjectCache.set(key, dst);
     return dst;
   }
 
