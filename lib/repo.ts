@@ -226,7 +226,7 @@ export class Repository {
 
     const s = (await readFileAsync(path.join(this.gitDir, 'HEAD'), 'utf8')).trim();
     if (s.startsWith('ref')) {
-      const name = s.split(path.sep).pop() as string;
+      const name = s.split('/').pop() as string;
       return {
         type: 'branch',
         branch: {
@@ -252,7 +252,7 @@ export class Repository {
 
     const s = fs.readFileSync(path.join(this.gitDir, 'HEAD'), 'utf8').trim();
     if (s.startsWith('ref')) {
-      const name = s.split(path.sep).pop() as string;
+      const name = s.split('/').pop() as string;
       return {
         type: 'branch',
         branch: {

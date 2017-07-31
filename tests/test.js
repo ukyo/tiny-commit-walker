@@ -176,7 +176,7 @@ async function testReadCommitHead(t, repo) {
 }
 
 test('read HEAD that is ref to commit hash', async t => await testReadCommitHead(t, repo2));
-test('read HEAD that is ref to commit hash', async t => await testReadCommitHead(t, repo2Packed));
+test('read HEAD that is ref to commit hash (packed)', async t => await testReadCommitHead(t, repo2Packed));
 
 function testReadCommitHeadSync(t, repo) {
   const head = repo.readHeadSync();
@@ -186,7 +186,7 @@ function testReadCommitHeadSync(t, repo) {
 }
 
 test('read HEAD that is ref to commit hash sync', t => testReadCommitHeadSync(t, repo2));
-test('read HEAD that is ref to commit hash sync', t => testReadCommitHeadSync(t, repo2Packed));
+test('read HEAD that is ref to commit hash sync (packed)', t => testReadCommitHeadSync(t, repo2Packed));
 
 /*
 current branch is master.
@@ -373,4 +373,4 @@ function testWalkCommitsSync(t, repo) {
 }
 
 test('walk commits sync', t => testWalkCommitsSync(t, repo1));
-test('walk commits sync', t => testWalkCommitsSync(t, repo1Packed));
+test('walk commits sync (packed)', t => testWalkCommitsSync(t, repo1Packed));
