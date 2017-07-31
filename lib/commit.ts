@@ -7,11 +7,21 @@ import { Packs } from './pack';
 const readFileAsync = promisify(fs.readFile);
 const inflateAsync = promisify(zlib.inflate);
 
+export interface AuthorOrCommitter {
+  name: string;
+  email: string;
+  date: Date;
+  timezoneOffset: number;
+}
+
 export class Commit {
   readonly parentHashes: string[];
   readonly type: string;
   readonly size: number;
   readonly body: string;
+  private _author: AuthorOrCommitter;
+  private _committer: AuthorOrCommitter;
+  readonly message: string;
 
   constructor(
     readonly gitDir: string,
@@ -23,8 +33,33 @@ export class Commit {
     const [type, size] = head.split(/\s/);
     this.size = +size;
     this.body = rest.join('\u0000');
+    // parse parent hashes
     const m = this.body.match(/^parent\s[a-f0-9]{40}/gm);
     this.parentHashes = m ? m.map(s => s.split(/\s/).pop()) as string[] : [];
+    this.message = this.body.split('\n\n').slice(1).join('\n\n').trim();
+  }
+
+  private _getAuthorOrCommitter(type: 'author' | 'committer'): AuthorOrCommitter {
+    const r = new RegExp(`^${type} ([^<>]+) <(\\S+)> (\\d+) ([+-]?\\d{2})(\\d{2})$`, 'm');
+    const [, name, email, dateStr, tzHourStr, tzMinuteStr] = this.body.match(r) as string[];
+    const time = +dateStr * 1000;
+    const date = new Date(time);
+    const timezoneOffset = (+tzHourStr * 60 + +tzMinuteStr) * 60 * 1000;
+    return { name, email, date, timezoneOffset };
+  }
+
+  get author() {
+    if (this._author) {
+      return this._author;
+    }
+    return this._author = this._getAuthorOrCommitter('author');
+  }
+
+  get committer() {
+    if (this._committer) {
+      return this._committer;
+    }
+    return this._committer = this._getAuthorOrCommitter('committer');
   }
 
   get hasParents() {
