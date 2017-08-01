@@ -10,7 +10,6 @@
     "watch:build": "npm run build -- -w",
     "watch:test": "npm run test -- -w",
     "watch": "run-p watch:*",
-    "prepare": "npm run build",
     "prepublishOnly": "run-s build test",
     "docs:build": "typedoc --out docs --excludeNotExported --excludePrivate --mode file --exclude '**/index.ts'",
     "docs:touch-nojeykll": "nodetouch docs/.nojekyll",

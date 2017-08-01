@@ -11,6 +11,7 @@ install:
   - ps: Install-Product node $env:nodejs_version $env:platform
   # install modules
   - npm install
+  - npm run build
 
 # Post-install test scripts.
 test_script:
