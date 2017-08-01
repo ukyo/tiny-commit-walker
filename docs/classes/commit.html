@@ -86,6 +86,7 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="commit.html#body" class="tsd-kind-icon">body</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="commit.html#message" class="tsd-kind-icon">message</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="commit.html#parenthashes" class="tsd-kind-icon">parent<wbr>Hashes</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="commit.html#size" class="tsd-kind-icon">size</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="commit.html#type" class="tsd-kind-icon">type</a></li>
@@ -94,7 +95,9 @@
 						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="commit.html#author" class="tsd-kind-icon">author</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="commit.html#baseparenthash" class="tsd-kind-icon">base<wbr>Parent<wbr>Hash</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="commit.html#committer" class="tsd-kind-icon">committer</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="commit.html#hasparents" class="tsd-kind-icon">has<wbr>Parents</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="commit.html#ismergecommit" class="tsd-kind-icon">is<wbr>Merge<wbr>Commit</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="commit.html#mergedparenthashes" class="tsd-kind-icon">merged<wbr>Parent<wbr>Hashes</a></li>
@@ -124,7 +127,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L14">commit.ts:14</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L24">commit.ts:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -155,7 +158,17 @@
 					<div class="tsd-signature tsd-kind-icon">body<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L14">commit.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L21">commit.ts:21</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="message" class="tsd-anchor"></a>
+					<h3>message</h3>
+					<div class="tsd-signature tsd-kind-icon">message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L24">commit.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -165,7 +178,7 @@
 					<div class="tsd-signature tsd-kind-icon">parent<wbr>Hashes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L11">commit.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L18">commit.ts:18</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -175,7 +188,7 @@
 					<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L13">commit.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L20">commit.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -185,13 +198,30 @@
 					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L12">commit.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L19">commit.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="author" class="tsd-anchor"></a>
+					<h3>author</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> author<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/authororcommitter.html" class="tsd-signature-type">AuthorOrCommitter</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L51">commit.ts:51</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/authororcommitter.html" class="tsd-signature-type">AuthorOrCommitter</a></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="baseparenthash" class="tsd-anchor"></a>
 					<h3>base<wbr>Parent<wbr>Hash</h3>
@@ -202,10 +232,27 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L38">commit.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L73">commit.ts:73</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="committer" class="tsd-anchor"></a>
+					<h3>committer</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> committer<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/authororcommitter.html" class="tsd-signature-type">AuthorOrCommitter</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L58">commit.ts:58</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/authororcommitter.html" class="tsd-signature-type">AuthorOrCommitter</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -219,7 +266,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L30">commit.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L65">commit.ts:65</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -236,7 +283,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L34">commit.ts:34</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L69">commit.ts:69</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -253,7 +300,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L42">commit.ts:42</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L77">commit.ts:77</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -273,7 +320,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L57">commit.ts:57</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L92">commit.ts:92</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -307,7 +354,7 @@ parentCommit = <span class="hljs-keyword">await</span> commit.walk(commit.parent
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L69">commit.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L104">commit.ts:104</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -338,7 +385,7 @@ parentCommit = commit.walkSync(commit.parentHash[<span class="hljs-number">1</sp
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L73">commit.ts:73</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L108">commit.ts:108</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -367,7 +414,7 @@ parentCommit = commit.walkSync(commit.parentHash[<span class="hljs-number">1</sp
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/6c41c29/lib/commit.ts#L93">commit.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/commit.ts#L128">commit.ts:128</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -410,6 +457,9 @@ parentCommit = commit.walkSync(commit.parentHash[<span class="hljs-number">1</sp
 								<a href="commit.html#body" class="tsd-kind-icon">body</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="commit.html#message" class="tsd-kind-icon">message</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="commit.html#parenthashes" class="tsd-kind-icon">parent<wbr>Hashes</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
@@ -419,7 +469,13 @@ parentCommit = commit.walkSync(commit.parentHash[<span class="hljs-number">1</sp
 								<a href="commit.html#type" class="tsd-kind-icon">type</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="commit.html#author" class="tsd-kind-icon">author</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="commit.html#baseparenthash" class="tsd-kind-icon">base<wbr>Parent<wbr>Hash</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="commit.html#committer" class="tsd-kind-icon">committer</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="commit.html#hasparents" class="tsd-kind-icon">has<wbr>Parents</a>
@@ -451,6 +507,9 @@ parentCommit = commit.walkSync(commit.parentHash[<span class="hljs-number">1</sp
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="repository.html" class="tsd-kind-icon">Repository</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/authororcommitter.html" class="tsd-kind-icon">Author<wbr>OrCommitter</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/branch.html" class="tsd-kind-icon">Branch</a>
