@@ -2,7 +2,8 @@
 
 Tiny git commit walker has no native modules.
 
-[![Build Status](https://travis-ci.org/ukyo/tiny-commit-walker.svg?branch=master)](https://travis-ci.org/ukyo/tiny-commit-walker) [![npm version](https://badge.fury.io/js/tiny-commit-walker.svg)](https://badge.fury.io/js/tiny-commit-walker)
+[![Build Status](https://travis-ci.org/ukyo/tiny-commit-walker.svg?branch=master)](https://travis-ci.org/ukyo/tiny-commit-walker) [![Build status](https://ci.appveyor.com/api/projects/status/y6icdkcok01fq927/branch/master?svg=true)](https://ci.appveyor.com/project/ukyo/tiny-commit-walker/branch/master)
+ [![npm version](https://badge.fury.io/js/tiny-commit-walker.svg)](https://badge.fury.io/js/tiny-commit-walker)
 
 # Install
 
