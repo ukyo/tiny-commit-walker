@@ -1,0 +1,8 @@
+URL: git://github.com/ukyo/my-temp-repo.git
+Pull: refs/heads/master:refs/heads/origin
+Pull: refs/heads/foo:refs/heads/foo
+Pull: refs/heads/b:refs/heads/b
+Pull: refs/heads/d:refs/heads/d
+Pull: refs/heads/bar:refs/heads/bar
+Pull: refs/heads/a:refs/heads/a
+Pull: refs/heads/c:refs/heads/c
