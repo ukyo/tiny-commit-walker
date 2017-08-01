@@ -6,6 +6,7 @@ const repo1 = new Repository(path.join(__dirname, 'fixture', 'repo1-dot-git'));
 const repo2 = new Repository(path.join(__dirname, 'fixture', 'repo2-dot-git'));
 const repo1Packed = new Repository(path.join(__dirname, 'fixture', 'repo1-packed-dot-git'));
 const repo2Packed = new Repository(path.join(__dirname, 'fixture', 'repo2-packed-dot-git'));
+const repo1V1Packed = new Repository(path.join(__dirname, 'fixture', 'repo1-v1-packed-dot-git'));
 
 test('find gitDir', async t => {
   const gitDir = await Repository.findGitDir(__dirname);
@@ -296,6 +297,7 @@ async function testWalkCommits(t, repo) {
 
 test('walk commits', async t => await testWalkCommits(t, repo1));
 test('walk commits (packed)', async t => await testWalkCommits(t, repo1Packed));
+test('walk commits (v1 packed)', async t => await testWalkCommits(t, repo1V1Packed));
 
 function testWalkCommitsSync(t, repo) {
   const branches = repo.readBranchesSync();
@@ -374,3 +376,4 @@ function testWalkCommitsSync(t, repo) {
 
 test('walk commits sync', t => testWalkCommitsSync(t, repo1));
 test('walk commits sync (packed)', t => testWalkCommitsSync(t, repo1Packed));
+test('walk commits sync (v1 packed)', t => testWalkCommitsSync(t, repo1Packed));
