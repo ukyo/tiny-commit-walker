@@ -7,20 +7,22 @@ import { Packs } from './pack';
 const readFileAsync = promisify(fs.readFile);
 const inflateAsync = promisify(zlib.inflate);
 
-export interface AuthorOrCommitter {
-  name: string;
-  email: string;
-  date: Date;
-  timezoneOffset: number;
+export interface Author {
+  readonly name: string;
+  readonly email: string;
+  readonly date: Date;
+  readonly timezoneOffset: number;
 }
+
+export interface Committer extends Author { }
 
 export class Commit {
   readonly parentHashes: string[];
   readonly type: string;
   readonly size: number;
   readonly body: string;
-  private _author: AuthorOrCommitter;
-  private _committer: AuthorOrCommitter;
+  private _author: Author;
+  private _committer: Committer;
   readonly message: string;
 
   constructor(
@@ -39,7 +41,7 @@ export class Commit {
     this.message = this.body.split('\n\n').slice(1).join('\n\n').trim();
   }
 
-  private _parseAuthorOrCommitter(type: 'author' | 'committer'): AuthorOrCommitter {
+  private _parseAuthorOrCommitter(type: 'author' | 'committer'): Author | Committer {
     const r = new RegExp(`^${type} ([^<>]+) <(\\S+)> (\\d+) ([+-]?\\d{2})(\\d{2})$`, 'm');
     const [, name, email, dateStr, tzHourStr, tzMinuteStr] = this.body.match(r) as string[];
     const time = +dateStr * 1000;
@@ -111,16 +113,15 @@ export class Commit {
         const body = await packs.unpackGitObject(hash);
         const s = body.toString('utf8');
         if (s.startsWith('object')) {
-          return await Commit.readCommit(gitDir, (s.match(/[a-f0-9]{40}/) as string[])[0], packs);
+          return await Commit.readCommit(gitDir, getHash(s), packs);
         }
-        const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
-        return new Commit(gitDir, hash, data, packs);
+        return new Commit(gitDir, hash, createCommitData(body), packs);
       } catch (e) { }
     }
     const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
     const data = (await inflateAsync(deflatedData)).toString('utf8');
     if (data.startsWith('tag')) {
-      return await Commit.readCommit(gitDir, (data.match(/[a-f0-9]{40}/) as string[])[0], packs);
+      return await Commit.readCommit(gitDir, getHash(data), packs);
     }
     return new Commit(gitDir, hash, data, packs);
   }
@@ -131,19 +132,26 @@ export class Commit {
         const body = packs.unpackGitObjectSync(hash);
         const s = body.toString('utf8');
         if (s.startsWith('object')) {
-          return Commit.readCommitSync(gitDir, (s.match(/[a-f0-9]{40}/) as string[])[0], packs);
+          return Commit.readCommitSync(gitDir, getHash(s), packs);
         }
-        const data = `commit ${body.length}\u0000${body.toString('utf8')}`;
-        return new Commit(gitDir, hash, data, packs);
+        return new Commit(gitDir, hash, createCommitData(body), packs);
       } catch (e) { }
     }
     const deflatedData = fs.readFileSync(getObjectPath(gitDir, hash));
     const data = zlib.inflateSync(deflatedData).toString('utf8');
     if (data.startsWith('tag')) {
-      return Commit.readCommitSync(gitDir, (data.match(/[a-f0-9]{40}/) as string[])[0], packs);
+      return Commit.readCommitSync(gitDir, getHash(data), packs);
     }
     return new Commit(gitDir, hash, data, packs);
   }
+}
+
+function createCommitData(body: Buffer) {
+  return `commit ${body.length}\u0000${body.toString('utf8')}`;
+}
+
+function getHash(s: string) {
+  return (s.match(/[a-f0-9]{40}/) as string[])[0];
 }
 
 function getObjectPath(gitDir: string, hash: string) {
