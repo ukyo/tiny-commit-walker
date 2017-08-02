@@ -75,7 +75,8 @@ function setupPackedIndexMap(idxFileBuffer: Buffer, fileIndex: number, map: Pack
     let off32 = index + n * 24;
     let off64 = off32 + n * 4;
     for (let i = 0; i < n; i++) {
-      const hash = idxFileBuffer.slice(index, index += 20).toString('hex');
+      const hash = readHash(idxFileBuffer, index);
+      index += 20;
       let offset = idxFileBuffer.readUInt32BE(off32);
       off32 += 4;
       if (offset & 0x80000000) {
@@ -88,7 +89,8 @@ function setupPackedIndexMap(idxFileBuffer: Buffer, fileIndex: number, map: Pack
   } else {
     for (let i = 0; i < n; i++) {
       const offset = idxFileBuffer.readUInt32BE(index);
-      const hash = idxFileBuffer.slice(index += 4, index += 20).toString('hex');
+      const hash = readHash(idxFileBuffer, index += 4);
+      index += 20;
       map.set(hash, { offset, fileIndex });
     }
   }
@@ -173,18 +175,33 @@ export class Packs {
     return packs;
   }
 
-  async unpackGitObject(hash: string): Promise<Buffer> {
+  private _getPackedIndexFromCache(hash: string) {
     const idx = this.packedIndexMap.get(hash);
     if (!idx) {
       throw new Error(`${hash} is not found.`);
     }
-    const key = `${idx.fileIndex}:${idx.offset}`;
-    let dst = this._packedObjectCache.get(key);
+    return idx;
+  }
+
+  private _getPackedObjectBufferFromCach(idx: PackedIndex) {
+    return this._packedObjectCache.get(`${idx.fileIndex}:${idx.offset}`);
+  }
+
+  private _setPackedObjectBuffrToCache(idx: PackedIndex, buff: Buffer) {
+    return this._packedObjectCache.set(`${idx.fileIndex}:${idx.offset}`, buff);
+  }
+
+  private _getPackFilePath(idx: PackedIndex) {
+    return path.join(this.packDir, this.packFileNames[idx.fileIndex] + '.pack');
+  }
+
+  async unpackGitObject(hash: string): Promise<Buffer> {
+    const idx = this._getPackedIndexFromCache(hash);
+    let dst = this._getPackedObjectBufferFromCach(idx);
     if (dst) {
       return dst;
     }
-    const filePath = path.join(this.packDir, this.packFileNames[idx.fileIndex] + '.pack');
-    const fd = await openFileAsync(filePath, 'r');
+    const fd = await openFileAsync(this._getPackFilePath(idx), 'r');
     try {
       dst = await this._unpackGitObject(fd, idx);
     } catch (e) {
@@ -196,17 +213,12 @@ export class Packs {
   }
 
   unpackGitObjectSync(hash: string): Buffer {
-    const idx = this.packedIndexMap.get(hash);
-    if (!idx) {
-      throw new Error(`${hash} is not found.`);
-    }
-    const key = `${idx.fileIndex}:${idx.offset}`;
-    let dst = this._packedObjectCache.get(key);
+    const idx = this._getPackedIndexFromCache(hash);
+    let dst = this._getPackedObjectBufferFromCach(idx);
     if (dst) {
       return dst;
     }
-    const filePath = path.join(this.packDir, this.packFileNames[idx.fileIndex] + '.pack');
-    const fd = fs.openSync(filePath, 'r');
+    const fd = fs.openSync(this._getPackFilePath(idx), 'r');
     try {
       dst = this._unpackGitObjectSync(fd, idx);
     } catch (e) {
@@ -218,8 +230,7 @@ export class Packs {
   }
 
   private async _unpackGitObject(fd: number, idx: PackedIndex): Promise<Buffer> {
-    const key = `${idx.fileIndex}:${idx.offset}`;
-    let dst = this._packedObjectCache.get(key);
+    let dst = this._getPackedObjectBufferFromCach(idx);
     if (dst) {
       return dst;
     }
@@ -242,13 +253,12 @@ export class Packs {
     if (!dst) {
       throw new Error(`${po.type} is a invalid object type.`);
     }
-    this._packedObjectCache.set(key, dst);    
+    this._setPackedObjectBuffrToCache(idx, dst);
     return dst;
   }
 
   private _unpackGitObjectSync(fd: number, idx: PackedIndex): Buffer {
-    const key = `${idx.fileIndex}:${idx.offset}`;
-    let dst = this._packedObjectCache.get(key);
+    let dst = this._getPackedObjectBufferFromCach(idx);
     if (dst) {
       return dst;
     }
@@ -271,7 +281,7 @@ export class Packs {
     if (!dst) {
       throw new Error(`${po.type} is a invalid object type.`);
     }
-    this._packedObjectCache.set(key, dst);
+    this._setPackedObjectBuffrToCache(idx, dst);
     return dst;
   }
 
@@ -285,12 +295,10 @@ export class Packs {
         fileIndex: idx.fileIndex
       });
     } else {
-      const hash = head.slice(po.offset, po.offset += 20).toString('hex');
-      src = await this.unpackGitObject(hash) as Buffer;
+      src = await this.unpackGitObject(readHash(head, po.offset)) as Buffer;
+      po.offset += 20;
     }
-    const delta = await inf(fd, idx, po);
-    const dst = patchDelta(src, delta);
-    return dst;
+    return patchDelta(src, await inf(fd, idx, po));
   }
 
   private _unpackDeltaObjectSync(fd: number, idx: PackedIndex, po: PackedObject, head: Buffer): Buffer {
@@ -303,13 +311,15 @@ export class Packs {
         fileIndex: idx.fileIndex
       });
     } else {
-      const hash = head.slice(po.offset, po.offset += 20).toString('hex');
-      src = this.unpackGitObjectSync(hash);
+      src = this.unpackGitObjectSync(readHash(head, po.offset));
+      po.offset += 20;
     }
-    const delta = infSync(fd, idx, po);
-    const dst = patchDelta(src, delta);
-    return dst;
+    return patchDelta(src, infSync(fd, idx, po));
   }
+}
+
+function readHash(buff: Buffer, offset: number) {
+  return buff.slice(offset, offset + 20).toString('hex');
 }
 
 function infSync(fd: number, idx: PackedIndex, po: PackedObject, size = po.size * 2 + 32): Buffer {
