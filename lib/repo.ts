@@ -13,19 +13,27 @@ export type BRANCH_DIR = 'heads' | 'remotes';
 
 export type StringMap = Map<string, string>;
 
-export interface Branch {
-  name: string;
-  commit: Commit;
-}
+export class Ref {
+  private _commit: Commit;
 
-export interface Tag {
-  name: string;
-  commit: Commit;
+  constructor(
+    readonly name: string,
+    private _gitDir: string,
+    private _hash: string,
+    private _packs: Packs,
+  ) { }
+
+  get commit() {
+    if (this._commit) {
+      return this._commit;
+    }
+    return this._commit = Commit.readCommitSync(this._gitDir, this._hash, this._packs);
+  }
 }
 
 export interface HEAD {
   type: 'branch' | 'commit';
-  branch?: Branch;
+  branch?: Ref;
   commit?: Commit;
 }
 
@@ -33,9 +41,9 @@ const processings: { [gitDir: string]: Promise<void> } = {};
 
 export class Repository {
   private _refs: {
-    heads: Branch[];
-    tags: Tag[];
-    remotes: Branch[];
+    heads: Ref[];
+    tags: Ref[];
+    remotes: Ref[];
   };
   private _packs: Packs;
 
@@ -107,14 +115,11 @@ export class Repository {
     };
 
     const readCommits = async (map: StringMap) => {
-      const brachOrTags: Branch[] | Tag[] = [];
+      const refs: Ref[] = [];
       for (const [name, hash] of map.entries()) {
-        brachOrTags[brachOrTags.length] = {
-          name,
-          commit: await Commit.readCommit(this.gitDir, hash, this._packs)
-        };
+        refs[refs.length] = new Ref(name, this.gitDir, hash, this._packs);
       }
-      return brachOrTags;
+      return refs;
     };
 
     const branchMap = await createMap('heads');
@@ -170,14 +175,11 @@ export class Repository {
     };
 
     const readCommits = (map: StringMap) => {
-      const brachOrTags: Branch[] | Tag[] = [];
+      const refs: Ref[] = [];
       for (const [name, hash] of map.entries()) {
-        brachOrTags[brachOrTags.length] = {
-          name,
-          commit: Commit.readCommitSync(this.gitDir, hash, this._packs)
-        }
+        refs[refs.length] = new Ref(name, this.gitDir, hash, this._packs);
       }
-      return brachOrTags;
+      return refs;
     };
 
     const branchMap = createMap('heads');
@@ -229,10 +231,7 @@ export class Repository {
       const name = s.split('/').pop() as string;
       return {
         type: 'branch',
-        branch: {
-          name,
-          commit: await this.readCommitByBranch(name),
-        }
+        branch: await this._readRef('heads', name),
       };
     } else {
       return {
@@ -255,10 +254,7 @@ export class Repository {
       const name = s.split('/').pop() as string;
       return {
         type: 'branch',
-        branch: {
-          name,
-          commit: this.readCommitByBranchSync(name),
-        }
+        branch: this._readRefSync('heads', name),
       };
     } else {
       return {
@@ -268,30 +264,30 @@ export class Repository {
     }
   }
 
-  private async _readBranchesOrTags(dir: REFS_DIR): Promise<(Tag | Branch)[]> {
+  private async _readRefs(dir: REFS_DIR): Promise<Ref[]> {
     if (!this._refs) await this._initRefs();
     return this._refs[dir];
   }
 
-  private _readBranchesOrTagsSync(dir: REFS_DIR): (Tag | Branch)[] {
+  private _readRefsSync(dir: REFS_DIR): Ref[] {
     if (!this._refs) this._initRefsSync();
     return this._refs[dir];
   }
 
-  private _findCommitFromRefs(dir: REFS_DIR, name: string) {
-    const branchOrTag = this._refs[dir].find(o => o.name === name);
-    if (!branchOrTag) throw new Error(`refs/${dir}/${name} is not found.`);
-    return branchOrTag.commit;
+  private _findRef(dir: REFS_DIR, name: string) {
+    const ref = this._refs[dir].find(o => o.name === name);
+    if (!ref) throw new Error(`refs/${dir}/${name} is not found.`);
+    return ref;
   }
 
-  private async _readCommitByBranchOrTag(dir: REFS_DIR, name: string): Promise<Commit> {
+  private async _readRef(dir: REFS_DIR, name: string): Promise<Ref> {
     if (!this._refs) await this._initRefs();
-    return this._findCommitFromRefs(dir, name);
+    return this._findRef(dir, name);
   }
 
-  private _readCommitByBranchOrTagSync(dir: REFS_DIR, name: string): Commit {
+  private _readRefSync(dir: REFS_DIR, name: string): Ref {
     if (!this._refs) this._initRefsSync();
-    return this._findCommitFromRefs(dir, name);
+    return this._findRef(dir, name);
   }
 
   /**
@@ -304,23 +300,23 @@ export class Repository {
    * console.log(heads[0].name, heads[0].commit);
    * ```
    */
-  async readBranches(dirs: BRANCH_DIR[] | BRANCH_DIR = ['heads']): Promise<Branch[]> {
+  async readBranches(dirs: BRANCH_DIR[] | BRANCH_DIR = ['heads']): Promise<Ref[]> {
     if (!Array.isArray(dirs)) {
       dirs = [dirs];
     }
     return await Promise
-      .all(dirs.map(async dir => await this._readBranchesOrTags(dir)))
+      .all(dirs.map(async dir => await this._readRefs(dir)))
       .then(results => Array.prototype.concat.apply([], results));
   }
 
   /**
    * Read branches sync.
    */
-  readBranchesSync(dirs: BRANCH_DIR[] | BRANCH_DIR = ['heads']): Branch[] {
+  readBranchesSync(dirs: BRANCH_DIR[] | BRANCH_DIR = ['heads']): Ref[] {
     if (!Array.isArray(dirs)) {
       dirs = [dirs];
     }
-    return Array.prototype.concat.apply([], dirs.map(dir => this._readBranchesOrTagsSync(dir)));
+    return Array.prototype.concat.apply([], dirs.map(dir => this._readRefsSync(dir)));
 
   }
 
@@ -334,9 +330,9 @@ export class Repository {
    */
   async readCommitByBranch(branchName: string): Promise<Commit> {
     try {
-      return await this._readCommitByBranchOrTag('heads', branchName);
+      return (await this._readRef('heads', branchName)).commit;
     } catch (e) {
-      return await this._readCommitByBranchOrTag('remotes', branchName);
+      return (await this._readRef('remotes', branchName)).commit;
     }
   }
 
@@ -345,9 +341,9 @@ export class Repository {
    */
   readCommitByBranchSync(branchName: string): Commit {
     try {
-      return this._readCommitByBranchOrTagSync('heads', branchName);
+      return this._readRefSync('heads', branchName).commit;
     } catch (e) {
-      return this._readCommitByBranchOrTagSync('remotes', branchName);
+      return this._readRefSync('remotes', branchName).commit;
     }
   }
 
@@ -358,15 +354,15 @@ export class Repository {
    * const tags = await repo.readTags();
    * ```
    */
-  async readTags(): Promise<Tag[]> {
-    return await this._readBranchesOrTags('tags');
+  async readTags(): Promise<Ref[]> {
+    return await this._readRefs('tags');
   }
 
   /**
    * Read tags sync.
    */
-  readTagsSync(): Tag[] {
-    return this._readBranchesOrTagsSync('tags');
+  readTagsSync(): Ref[] {
+    return this._readRefsSync('tags');
   }
 
   /**
@@ -377,14 +373,14 @@ export class Repository {
    * ```
    */
   async readCommitByTag(tagName: string): Promise<Commit> {
-    return this._readCommitByBranchOrTag('tags', tagName);
+    return (await this._readRef('tags', tagName)).commit;
   }
 
   /**
    * Read a commit by tag name sync.
    */
   readCommitByTagSync(tagName: string): Commit {
-    return this._readCommitByBranchOrTagSync('tags', tagName);
+    return this._readRefSync('tags', tagName).commit;
   }
 }
 
