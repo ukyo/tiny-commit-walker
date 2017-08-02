@@ -31,8 +31,8 @@ enum ObjectTypeEnum {
 const packsCache = LRU<Packs>(4);
 
 export interface PackedIndex {
-  offset: number;
-  fileIndex: number;
+  readonly offset: number;
+  readonly fileIndex: number;
 }
 
 export type PackedIndexMap = Map<string, PackedIndex>;
@@ -50,7 +50,7 @@ class PackedObject {
     let x = 16;
     while (c & 0x80) {
       c = buff[offset++];
-      size +=(c & 0x7f) * x;
+      size += (c & 0x7f) * x;
       x *= 128;
     }
     this.type = type;
@@ -62,9 +62,9 @@ class PackedObject {
 function setupPackedIndexMap(idxFileBuffer: Buffer, fileIndex: number, map: PackedIndexMap) {
   let idxVersion: number;
   let index = 255 * 4;
-  if (idxFileBuffer.readUInt32BE(0) === 0xff744f63 && idxFileBuffer.readUInt32BE(4) === 2) {
-    idxVersion = 2;
-    index += 2 * 4;
+  if (idxFileBuffer.readUInt32BE(0) === 0xff744f63) {
+    idxVersion = idxFileBuffer.readUInt32BE(4);
+    index += 8;
   } else {
     idxVersion = 1;
   }
@@ -75,7 +75,7 @@ function setupPackedIndexMap(idxFileBuffer: Buffer, fileIndex: number, map: Pack
     let off32 = index + n * 24;
     let off64 = off32 + n * 4;
     for (let i = 0; i < n; i++) {
-      const hash = idxFileBuffer.slice(index + i * 20, index + (i + 1) * 20).toString('hex');
+      const hash = idxFileBuffer.slice(index, index += 20).toString('hex');
       let offset = idxFileBuffer.readUInt32BE(off32);
       off32 += 4;
       if (offset & 0x80000000) {
@@ -87,8 +87,8 @@ function setupPackedIndexMap(idxFileBuffer: Buffer, fileIndex: number, map: Pack
     }
   } else {
     for (let i = 0; i < n; i++) {
-      const offset = idxFileBuffer.readUInt32BE(index + 24 * i);
-      const hash = idxFileBuffer.slice(index + 24 * i + 4, index + 24 * (i + 1)).toString('hex');
+      const offset = idxFileBuffer.readUInt32BE(index);
+      const hash = idxFileBuffer.slice(index += 4, index += 20).toString('hex');
       map.set(hash, { offset, fileIndex });
     }
   }
@@ -224,16 +224,14 @@ export class Packs {
       return dst;
     }
     const head = Buffer.alloc(32);
-    await readAsync(fd, head, 0, 32, idx.offset);
+    await readAsync(fd, head, 0, head.length, idx.offset);
     const po = new PackedObject(idx, head);
     switch (po.type) {
       case ObjectTypeEnum.COMMIT:
-      case ObjectTypeEnum.TREE:
-      case ObjectTypeEnum.BLOB:
+      // case ObjectTypeEnum.TREE:
+      // case ObjectTypeEnum.BLOB:
       case ObjectTypeEnum.TAG: {
-        const buff = Buffer.alloc(po.size * 2 + 32);
-        await readAsync(fd, buff, 0, buff.length, idx.offset + po.offset);
-        dst = await inflateAsync(buff);
+        dst = await inf(fd, idx, po);
         break;
       }
       case ObjectTypeEnum.OFS_DELTA:
@@ -255,16 +253,14 @@ export class Packs {
       return dst;
     }
     const head = Buffer.alloc(32);
-    fs.readSync(fd, head, 0, 32, idx.offset);
+    fs.readSync(fd, head, 0, head.length, idx.offset);
     const po = new PackedObject(idx, head);
     switch (po.type) {
       case ObjectTypeEnum.COMMIT:
-      case ObjectTypeEnum.TREE:
-      case ObjectTypeEnum.BLOB:
+      // case ObjectTypeEnum.TREE:
+      // case ObjectTypeEnum.BLOB:
       case ObjectTypeEnum.TAG: {
-        const buff = Buffer.alloc(po.size * 2 + 32);
-        fs.readSync(fd, buff, 0, buff.length, idx.offset + po.offset);
-        dst = zlib.inflateSync(buff);
+        dst = infSync(fd, idx, po);
         break;
       }
       case ObjectTypeEnum.OFS_DELTA:
@@ -292,9 +288,7 @@ export class Packs {
       const hash = head.slice(po.offset, po.offset += 20).toString('hex');
       src = await this.unpackGitObject(hash) as Buffer;
     }
-    const buff = Buffer.alloc(po.size * 2 + 32);
-    await readAsync(fd, buff, 0, buff.length, idx.offset + po.offset);
-    const delta = await inflateAsync(buff);
+    const delta = await inf(fd, idx, po);
     const dst = patchDelta(src, delta);
     return dst;
   }
@@ -312,10 +306,34 @@ export class Packs {
       const hash = head.slice(po.offset, po.offset += 20).toString('hex');
       src = this.unpackGitObjectSync(hash);
     }
-    const buff = Buffer.alloc(po.size * 2 + 32);
-    fs.readSync(fd, buff, 0, buff.length, idx.offset + po.offset);
-    const delta = zlib.inflateSync(buff);
+    const delta = infSync(fd, idx, po);
     const dst = patchDelta(src, delta);
     return dst;
+  }
+}
+
+function infSync(fd: number, idx: PackedIndex, po: PackedObject, size = po.size * 2 + 32): Buffer {
+  const buff = Buffer.allocUnsafe(size);
+  fs.readSync(fd, buff, 0, buff.length, idx.offset + po.offset);
+  try {
+    return zlib.inflateSync(buff);
+  } catch (e) {
+    if (e.errno !== -5) {
+      throw e;
+    }
+    return infSync(fd, idx, po, size + 128);
+  }
+}
+
+async function inf(fd: number, idx: PackedIndex, po: PackedObject, size = po.size * 2 + 32): Promise<Buffer> {
+  const buff = Buffer.allocUnsafe(size);
+  await readAsync(fd, buff, 0, buff.length, idx.offset + po.offset);
+  try {
+    return await inflateAsync(buff);
+  } catch (e) {
+    if (e.errno !== -5) {
+      throw e;
+    }
+    return await inf(fd, idx, po, size + 128);
   }
 }
