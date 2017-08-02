@@ -1,2 +1,3 @@
 node_modules
 dist
+bench/fixture/10000-commits-dot-git/
