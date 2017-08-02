@@ -12,6 +12,7 @@ export type REFS_DIR = 'heads' | 'tags' | 'remotes';
 export type BRANCH_DIR = 'heads' | 'remotes';
 
 export type StringMap = Map<string, string>;
+export type RefMap = Map<string, Ref>;
 
 export class Ref {
   private _commit: Commit;
@@ -32,9 +33,9 @@ export class Ref {
 }
 
 export interface HEAD {
-  type: 'branch' | 'commit';
-  branch?: Ref;
-  commit?: Commit;
+  readonly type: 'branch' | 'commit';
+  readonly branch?: Ref;
+  readonly commit?: Commit;
 }
 
 const processings: { [gitDir: string]: Promise<void> } = {};
@@ -45,9 +46,17 @@ export class Repository {
     tags: Ref[];
     remotes: Ref[];
   };
+  private _refMaps = {} as {
+    heads: RefMap;
+    tags: RefMap;
+    remotes: RefMap;
+  };
   private _packs: Packs;
+  private _refsDir: string;  
 
-  constructor(readonly gitDir: string) { }
+  constructor(readonly gitDir: string) {
+    this._refsDir = path.join(gitDir, 'refs');
+  }
 
   /**
    * Find a git directory. This function find one from current or parents directories.
@@ -103,11 +112,11 @@ export class Repository {
     const createMap = async (dir: string, prefix = '') => {
       const map: StringMap = new Map();
       try {
-        const names = await readDirAsync(path.join(this.gitDir, 'refs', dir));
+        const names = await readDirAsync(path.join(this._refsDir, dir));
         for (let i = 0; i < names.length; i++) {
           const name = names[i];
           if (name === 'HEAD') continue;
-          const hash = (await readFileAsync(path.join(this.gitDir, 'refs', dir, name), 'utf8')).trim();
+          const hash = (await readFileAsync(path.join(this._refsDir, dir, name), 'utf8')).trim();
           map.set(prefix + name, hash); 
         }
       } catch (e) { }
@@ -126,7 +135,7 @@ export class Repository {
     const tagMap = await createMap('tags');
     const remoteBranchMap: StringMap = new Map();
     try {
-      const dirs = await readDirAsync(path.join(this.gitDir, 'refs', 'remotes'));
+      const dirs = await readDirAsync(path.join(this._refsDir, 'remotes'));
       for (let i = 0; i < dirs.length; i++) {
         const dir = dirs[i];
         const map = await createMap(path.join('remotes', dir), `${dir}/`);
@@ -147,6 +156,7 @@ export class Repository {
       readCommits(remoteBranchMap),
     ]).then(([heads, tags, remotes]) => {
       this._refs = { heads, tags, remotes };
+      this._initRefMaps();
       delete processings[this.gitDir];
     });
     processings[this.gitDir] = promise;
@@ -164,10 +174,11 @@ export class Repository {
     const createMap = (dir: string, prefix = '') => {
       const map: StringMap = new Map();
       try {
-        const names = fs.readdirSync(path.join(this.gitDir, 'refs', dir));
+        const names = fs.readdirSync(path.join(this._refsDir, dir));
         for (let i = 0; i < names.length; i++) {
           const name = names[i];
-          const hash = fs.readFileSync(path.join(this.gitDir, 'refs', dir, name), 'utf8').trim();
+          if (name === 'HEAD') continue;
+          const hash = fs.readFileSync(path.join(this._refsDir, dir, name), 'utf8').trim();
           map.set(prefix + name, hash); 
         }
       } catch (e) { }
@@ -186,7 +197,7 @@ export class Repository {
     const tagMap = createMap('tags');
     const remoteBranchMap: StringMap = new Map();
     try {
-      const dirs = fs.readdirSync(path.join(this.gitDir, 'refs', 'remotes'));
+      const dirs = fs.readdirSync(path.join(this._refsDir, 'remotes'));
       for (let i = 0; i < dirs.length; i++) {
         const dir = dirs[i];
         const map = createMap(path.join('remotes', dir), `${dir}/`);
@@ -206,6 +217,15 @@ export class Repository {
       tags: readCommits(tagMap),
       remotes: readCommits(remoteBranchMap),
     };
+    this._initRefMaps();
+  }
+
+  private _initRefMaps() {
+    Object.keys(this._refs).forEach((k: REFS_DIR) => {
+      const m = new Map();
+      this._refs[k].forEach(ref => m.set(ref.name, ref));
+      this._refMaps[k] = m;
+    });
   }
 
   /**
@@ -275,7 +295,7 @@ export class Repository {
   }
 
   private _findRef(dir: REFS_DIR, name: string) {
-    const ref = this._refs[dir].find(o => o.name === name);
+    const ref = this._refMaps[dir].get(name);
     if (!ref) throw new Error(`refs/${dir}/${name} is not found.`);
     return ref;
   }
