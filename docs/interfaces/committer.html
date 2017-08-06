@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Branch | tiny-commit-walker</title>
+	<title>Committer | tiny-commit-walker</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="branch.html">Branch</a>
+					<a href="committer.html">Committer</a>
 				</li>
 			</ul>
-			<h1>Interface Branch</h1>
+			<h1>Interface Committer</h1>
 		</div>
 	</div>
 </header>
@@ -68,7 +68,12 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">Branch</span>
+						<a href="author.html" class="tsd-signature-type">Author</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">Committer</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</section>
@@ -76,35 +81,61 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="branch.html#commit" class="tsd-kind-icon">commit</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="branch.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="committer.html#date" class="tsd-kind-icon">date</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="committer.html#email" class="tsd-kind-icon">email</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="committer.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="committer.html#timezoneoffset" class="tsd-kind-icon">timezone<wbr>Offset</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="commit" class="tsd-anchor"></a>
-					<h3>commit</h3>
-					<div class="tsd-signature tsd-kind-icon">commit<span class="tsd-signature-symbol">:</span> <a href="../classes/commit.html" class="tsd-signature-type">Commit</a></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="date" class="tsd-anchor"></a>
+					<h3>date</h3>
+					<div class="tsd-signature tsd-kind-icon">date<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Date</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="author.html">Author</a>.<a href="author.html#date">date</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/repo.ts#L18">repo.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/082e8ca/lib/commit.ts#L13">commit.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="email" class="tsd-anchor"></a>
+					<h3>email</h3>
+					<div class="tsd-signature tsd-kind-icon">email<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="author.html">Author</a>.<a href="author.html#email">email</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/082e8ca/lib/commit.ts#L12">commit.ts:12</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="name" class="tsd-anchor"></a>
 					<h3>name</h3>
 					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="author.html">Author</a>.<a href="author.html#name">name</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/d3d38c2/lib/repo.ts#L17">repo.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/082e8ca/lib/commit.ts#L11">commit.ts:11</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="timezoneoffset" class="tsd-anchor"></a>
+					<h3>timezone<wbr>Offset</h3>
+					<div class="tsd-signature tsd-kind-icon">timezone<wbr>Offset<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="author.html">Author</a>.<a href="author.html#timezoneoffset">timezoneOffset</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/ukyo/tiny-commit-walker/blob/082e8ca/lib/commit.ts#L14">commit.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -127,21 +158,30 @@
 						<a href="../classes/packs.html" class="tsd-kind-icon">Packs</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="../classes/ref.html" class="tsd-kind-icon">Ref</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="../classes/repository.html" class="tsd-kind-icon">Repository</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="authororcommitter.html" class="tsd-kind-icon">Author<wbr>OrCommitter</a>
+						<a href="author.html" class="tsd-kind-icon">Author</a>
 					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="branch.html" class="tsd-kind-icon">Branch</a>
+						<a href="committer.html" class="tsd-kind-icon">Committer</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="branch.html#commit" class="tsd-kind-icon">commit</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="committer.html#date" class="tsd-kind-icon">date</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="branch.html#name" class="tsd-kind-icon">name</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="committer.html#email" class="tsd-kind-icon">email</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="committer.html#name" class="tsd-kind-icon">name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="committer.html#timezoneoffset" class="tsd-kind-icon">timezone<wbr>Offset</a>
 							</li>
 						</ul>
 					</li>
@@ -153,9 +193,6 @@
 					<li class=" tsd-kind-interface">
 						<a href="packedindex.html" class="tsd-kind-icon">Packed<wbr>Index</a>
 					</li>
-					<li class=" tsd-kind-interface">
-						<a href="tag.html" class="tsd-kind-icon">Tag</a>
-					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="../globals.html#branch_dir" class="tsd-kind-icon">BRANCH_<wbr>DIR</a>
 					</li>
@@ -164,6 +201,9 @@
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="../globals.html#refs_dir" class="tsd-kind-icon">REFS_<wbr>DIR</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../globals.html#refmap" class="tsd-kind-icon">Ref<wbr>Map</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="../globals.html#stringmap" class="tsd-kind-icon">String<wbr>Map</a>
