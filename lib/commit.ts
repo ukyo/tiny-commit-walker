@@ -113,15 +113,17 @@ export class Commit {
         const body = await packs.unpackGitObject(hash);
         const s = body.toString('utf8');
         if (s.startsWith('object')) {
-          return await Commit.readCommit(gitDir, getHash(s), packs);
+          return await Commit.readCommit(gitDir, getCommitHashFromAnnotatedTag(s), packs);
         }
         return new Commit(gitDir, hash, createCommitData(body), packs);
-      } catch (e) { }
+      } catch (e) {
+        if (e instanceof InvalidAnnotatedTagError) throw e;
+      }
     }
     const deflatedData = await readFileAsync(getObjectPath(gitDir, hash));
     const data = (await inflateAsync(deflatedData)).toString('utf8');
     if (data.startsWith('tag')) {
-      return await Commit.readCommit(gitDir, getHash(data), packs);
+      return await Commit.readCommit(gitDir, getCommitHashFromAnnotatedTag(data), packs);
     }
     return new Commit(gitDir, hash, data, packs);
   }
@@ -132,15 +134,17 @@ export class Commit {
         const body = packs.unpackGitObjectSync(hash);
         const s = body.toString('utf8');
         if (s.startsWith('object')) {
-          return Commit.readCommitSync(gitDir, getHash(s), packs);
+          return Commit.readCommitSync(gitDir, getCommitHashFromAnnotatedTag(s), packs);
         }
         return new Commit(gitDir, hash, createCommitData(body), packs);
-      } catch (e) { }
+      } catch (e) {
+        if (e instanceof InvalidAnnotatedTagError) throw e;
+      }
     }
     const deflatedData = fs.readFileSync(getObjectPath(gitDir, hash));
     const data = zlib.inflateSync(deflatedData).toString('utf8');
     if (data.startsWith('tag')) {
-      return Commit.readCommitSync(gitDir, getHash(data), packs);
+      return Commit.readCommitSync(gitDir, getCommitHashFromAnnotatedTag(data), packs);
     }
     return new Commit(gitDir, hash, data, packs);
   }
@@ -150,10 +154,39 @@ function createCommitData(body: Buffer) {
   return `commit ${body.length}\u0000${body.toString('utf8')}`;
 }
 
-function getHash(s: string) {
-  return (s.match(/[a-f0-9]{40}/) as string[])[0];
-}
-
 function getObjectPath(gitDir: string, hash: string) {
   return path.join(gitDir, 'objects', hash.replace(/^(.{2})(.{38})$/, `$1${path.sep}$2`));
+}
+
+function getGitObjectBody(s: string) {
+  let i = 0;
+  while (s[i++] !== '\u0000');
+  return s.slice(i);
+}
+
+class InvalidAnnotatedTagError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.message = `Invalid git object type: ${message}`;
+  }
+}
+
+function getCommitHashFromAnnotatedTag(tagBody: string) {
+  if (tagBody.startsWith('tag')) tagBody = getGitObjectBody(tagBody);
+  const lines = tagBody.split('\n');
+  const tag = {} as {
+    object: string;
+    type: 'commit' | 'tree' | 'blob' | 'tag';
+  };
+  lines.some(line => {
+    if (!line.length) return true;
+    const [k, v] = line.split(/\s/);
+    switch (k) {
+      case 'object':
+      case 'type': tag[k] = v;
+    }
+    return false;
+  });
+  if (tag.type !== 'commit') throw new InvalidAnnotatedTagError(tag.type);
+  return tag.object;
 }
