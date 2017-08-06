@@ -408,7 +408,6 @@ function addInfoRefs(s: string, branchMap: StringMap, tagMap: StringMap, remoteB
   const _tagMap: StringMap = new Map();
   const lines = s.trim().split('\n').forEach((line: string) => {
     const m = line.match(/([a-f\d]{40}) refs\/(heads|remotes|tags)\/(.+)/);
-    console.log(m, line);
     if (!m) return;
     const [, hash, type, name] = m;
     switch (type) {
