@@ -146,7 +146,7 @@ export class Repository {
     } catch (e) { }
 
     try {
-      const s = await readFileAsync(path.join(this.gitDir, 'info', 'refs'), 'utf8');
+      const s = await readFileAsync(path.join(this.gitDir, 'packed-refs'), 'utf8');
       addInfoRefs(s, branchMap, tagMap, remoteBranchMap);
     } catch (e) { }
 
@@ -208,7 +208,7 @@ export class Repository {
     } catch (e) { }
 
     try {
-      const s = fs.readFileSync(path.join(this.gitDir, 'info', 'refs'), 'utf8');
+      const s = fs.readFileSync(path.join(this.gitDir, 'packed-refs'), 'utf8');
       addInfoRefs(s, branchMap, tagMap, remoteBranchMap);
     } catch (e) { }
 
@@ -407,23 +407,14 @@ export class Repository {
 function addInfoRefs(s: string, branchMap: StringMap, tagMap: StringMap, remoteBranchMap: StringMap) {
   const _tagMap: StringMap = new Map();
   const lines = s.trim().split('\n').forEach((line: string) => {
-    const [hash, ref] = line.split(/\s+/);
-    let name = ref.split('/').pop() as string;
-    if (/^refs\/heads\//.test(ref)) {
-      if (branchMap.has(name)) return;
-      branchMap.set(name, hash);
-    } else if (/^refs\/remotes\//.test(ref)) {
-      name = ref.slice('refs/remotes/'.length);
-      if (remoteBranchMap.has(name) || name.split('/').pop() === 'HEAD') return;
-      remoteBranchMap.set(name, hash);
-    } else {
-      if (name.endsWith('^{}')) {
-        name = name.slice(0, -3);
-      }
-      _tagMap.set(name, hash);
+    const m = line.match(/([a-f\d]{40}) refs\/(heads|remotes|tags)\/(.+)/);
+    console.log(m, line);
+    if (!m) return;
+    const [, hash, type, name] = m;
+    switch (type) {
+      case 'heads': !branchMap.has(name) && branchMap.set(name, hash); break;
+      case 'remotes': !remoteBranchMap.has(name) && remoteBranchMap.set(name, hash); break;
+      case 'tags': !tagMap.has(name) && tagMap.set(name, hash); break;
     }
   });
-  for (const [name, hash] of _tagMap.entries()) {
-    if (!tagMap.has(name)) tagMap.set(name, hash);
-  }
 }
