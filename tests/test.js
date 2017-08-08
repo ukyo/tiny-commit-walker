@@ -30,7 +30,7 @@ test('find gitDir sync (failed)', t => {
 
 async function testReadBranches(t, repo) {
   const branches = await repo.readBranches();
-  t.is(branches.length, 5);
+  t.is(branches.length, 6);
   t.truthy(branches.find(b => b.name === 'master'));
   t.is(branches.find(b => b.name === 'master').commit.hash, (await repo.readCommitByBranch('master')).hash);
   t.truthy(branches.find(b => b.name === 'a'));
@@ -41,6 +41,8 @@ async function testReadBranches(t, repo) {
   t.is(branches.find(b => b.name === 'c').commit.hash, (await repo.readCommitByBranch('c')).hash);
   t.truthy(branches.find(b => b.name === 'd'));
   t.is(branches.find(b => b.name === 'd').commit.hash, (await repo.readCommitByBranch('d')).hash);
+  t.truthy(branches.find(b => b.name === 'deep/nested/branch'));
+  t.is(branches.find(b => b.name === 'deep/nested/branch').commit.hash, (await repo.readCommitByBranch('deep/nested/branch')).hash);
   const remoteBranches = await repo.readBranches('remotes');
   t.is(remoteBranches.length, 3);
   t.truthy(remoteBranches.find(b => b.name === 'origin/master'));
@@ -50,7 +52,7 @@ async function testReadBranches(t, repo) {
   t.truthy(remoteBranches.find(b => b.name === 'origin/bar'));
   t.is(remoteBranches.find(b => b.name === 'origin/bar').commit.hash, (await repo.readCommitByBranch('origin/bar')).hash);
   const allBranches = await repo.readBranches(['heads', 'remotes']);
-  t.is(allBranches.length, 8);
+  t.is(allBranches.length, 9);
   t.truthy(allBranches.find(b => b.name === 'master'));
   t.is(allBranches.find(b => b.name === 'master').commit.hash, (await repo.readCommitByBranch('master')).hash);
   t.truthy(allBranches.find(b => b.name === 'a'));
@@ -61,6 +63,8 @@ async function testReadBranches(t, repo) {
   t.is(allBranches.find(b => b.name === 'c').commit.hash, (await repo.readCommitByBranch('c')).hash);
   t.truthy(allBranches.find(b => b.name === 'd'));
   t.is(allBranches.find(b => b.name === 'd').commit.hash, (await repo.readCommitByBranch('d')).hash);
+  t.truthy(allBranches.find(b => b.name === 'deep/nested/branch'));
+  t.is(allBranches.find(b => b.name === 'deep/nested/branch').commit.hash, (await repo.readCommitByBranch('deep/nested/branch')).hash);
   t.truthy(allBranches.find(b => b.name === 'origin/master'));
   t.is(allBranches.find(b => b.name === 'origin/master').commit.hash, (await repo.readCommitByBranch('origin/master')).hash);
   t.truthy(allBranches.find(b => b.name === 'origin/foo'));
@@ -74,7 +78,7 @@ test('read branches (packed)', async t => await testReadBranches(t, repo1Packed)
 
 function testReadBranchesSync(t, repo) {
   const branches = repo.readBranchesSync();
-  t.is(branches.length, 5);
+  t.is(branches.length, 6);
   t.truthy(branches.find(b => b.name === 'master'));
   t.is(branches.find(b => b.name === 'master').commit.hash, (repo.readCommitByBranchSync('master')).hash);
   t.truthy(branches.find(b => b.name === 'a'));
@@ -85,6 +89,8 @@ function testReadBranchesSync(t, repo) {
   t.is(branches.find(b => b.name === 'c').commit.hash, (repo.readCommitByBranchSync('c')).hash);
   t.truthy(branches.find(b => b.name === 'd'));
   t.is(branches.find(b => b.name === 'd').commit.hash, (repo.readCommitByBranchSync('d')).hash);
+  t.truthy(branches.find(b => b.name === 'deep/nested/branch'));
+  t.is(branches.find(b => b.name === 'deep/nested/branch').commit.hash, (repo.readCommitByBranchSync('deep/nested/branch')).hash);
   const remoteBranches = repo.readBranchesSync('remotes');
   t.is(remoteBranches.length, 3);
   t.truthy(remoteBranches.find(b => b.name === 'origin/master'));
@@ -94,7 +100,7 @@ function testReadBranchesSync(t, repo) {
   t.truthy(remoteBranches.find(b => b.name === 'origin/bar'));
   t.is(remoteBranches.find(b => b.name === 'origin/bar').commit.hash, (repo.readCommitByBranchSync('origin/bar')).hash);
   const allBranches = repo.readBranchesSync(['heads', 'remotes']);
-  t.is(allBranches.length, 8);
+  t.is(allBranches.length, 9);
   t.truthy(allBranches.find(b => b.name === 'master'));
   t.is(allBranches.find(b => b.name === 'master').commit.hash, (repo.readCommitByBranchSync('master')).hash);
   t.truthy(allBranches.find(b => b.name === 'a'));
@@ -105,6 +111,8 @@ function testReadBranchesSync(t, repo) {
   t.is(allBranches.find(b => b.name === 'c').commit.hash, (repo.readCommitByBranchSync('c')).hash);
   t.truthy(allBranches.find(b => b.name === 'd'));
   t.is(allBranches.find(b => b.name === 'd').commit.hash, (repo.readCommitByBranchSync('d')).hash);
+  t.truthy(allBranches.find(b => b.name === 'deep/nested/branch'));
+  t.is(allBranches.find(b => b.name === 'deep/nested/branch').commit.hash, (repo.readCommitByBranchSync('deep/nested/branch')).hash);
   t.truthy(allBranches.find(b => b.name === 'origin/master'));
   t.is(allBranches.find(b => b.name === 'origin/master').commit.hash, (repo.readCommitByBranchSync('origin/master')).hash);
   t.truthy(allBranches.find(b => b.name === 'origin/foo'));
@@ -139,7 +147,7 @@ test('read HEAD that is ref to branch sync (packed)', t => testReadBranchHeadSyn
 
 async function testReadTags(t, repo) {
   const tags = await repo.readTags();
-  t.is(tags.length, 4);
+  t.is(tags.length, 5);
   t.truthy(tags.find(t => t.name === 'v1'));
   t.is(tags.find(t => t.name === 'v1').commit.hash, (await repo.readCommitByTag('v1')).hash);
   t.truthy(tags.find(t => t.name === 'v2'));
@@ -148,6 +156,8 @@ async function testReadTags(t, repo) {
   t.is(tags.find(t => t.name === 'v3').commit.hash, (await repo.readCommitByTag('v3')).hash);
   t.truthy(tags.find(t => t.name === 'v4.comment'));
   t.is(tags.find(t => t.name === 'v4.comment').commit.hash, (await repo.readCommitByTag('v4.comment')).hash);
+  t.truthy(tags.find(t => t.name === 'v5/5/5'));
+  t.is(tags.find(t => t.name === 'v5/5/5').commit.hash, (await repo.readCommitByTag('v5/5/5')).hash);
 }
 
 test('read tags', async t => await testReadTags(t, repo2));
@@ -155,7 +165,7 @@ test('read tags (packed)', async t => await testReadTags(t, repo2Packed));
 
 function testReadTagsSync(t, repo) {
   const tags = repo.readTagsSync();
-  t.is(tags.length, 4);
+  t.is(tags.length, 5);
   t.truthy(tags.find(t => t.name === 'v1'));
   t.is(tags.find(t => t.name === 'v1').commit.hash, (repo.readCommitByTagSync('v1')).hash);
   t.truthy(tags.find(t => t.name === 'v2'));
@@ -164,6 +174,8 @@ function testReadTagsSync(t, repo) {
   t.is(tags.find(t => t.name === 'v3').commit.hash, (repo.readCommitByTagSync('v3')).hash);
   t.truthy(tags.find(t => t.name === 'v4.comment'));
   t.is(tags.find(t => t.name === 'v4.comment').commit.hash, (repo.readCommitByTagSync('v4.comment')).hash);
+  t.truthy(tags.find(t => t.name === 'v5/5/5'));
+  t.is(tags.find(t => t.name === 'v5/5/5').commit.hash, (repo.readCommitByTagSync('v5/5/5')).hash);
 }
 
 test('read tags sync', t => testReadTagsSync(t, repo2));

@@ -2,6 +2,7 @@
 1361abef64456544b1847ff12eff890ca1ec1c24	refs/heads/b
 27ed78cdfce91731cc270834e547006e68c160a4	refs/heads/c
 b1c14090693a2a51556d77c7950653fc962b9316	refs/heads/d
+8615421ca60a7d5d1cd19bf97bd100e19cb0dd47	refs/heads/deep/nested/branch
 8615421ca60a7d5d1cd19bf97bd100e19cb0dd47	refs/heads/master
 8615421ca60a7d5d1cd19bf97bd100e19cb0dd47	refs/remotes/origin/bar
 8615421ca60a7d5d1cd19bf97bd100e19cb0dd47	refs/remotes/origin/foo

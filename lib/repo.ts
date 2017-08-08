@@ -112,12 +112,12 @@ export class Repository {
     const createMap = async (dir: string, prefix = '') => {
       const map: StringMap = new Map();
       try {
-        const names = await readDirAsync(path.join(this._refsDir, dir));
-        for (let i = 0; i < names.length; i++) {
-          const name = names[i];
-          if (name === 'HEAD') continue;
-          const hash = (await readFileAsync(path.join(this._refsDir, dir, name), 'utf8')).trim();
-          map.set(prefix + name, hash); 
+        const pathes = await readFilePathes(path.join(this._refsDir, dir));
+        for (let i = 0; i < pathes.length; i++) {
+          const p = pathes[i];
+          if (p === 'HEAD') continue;
+          const hash = (await readFileAsync(path.join(this._refsDir, dir, p), 'utf8')).trim();
+          map.set(prefix + p, hash); 
         }
       } catch (e) { }
       return map;
@@ -147,7 +147,7 @@ export class Repository {
 
     try {
       const s = await readFileAsync(path.join(this.gitDir, 'packed-refs'), 'utf8');
-      addInfoRefs(s, branchMap, tagMap, remoteBranchMap);
+      addPackedRefs(s, branchMap, tagMap, remoteBranchMap);
     } catch (e) { }
 
     const promise = Promise.all([
@@ -174,12 +174,12 @@ export class Repository {
     const createMap = (dir: string, prefix = '') => {
       const map: StringMap = new Map();
       try {
-        const names = fs.readdirSync(path.join(this._refsDir, dir));
-        for (let i = 0; i < names.length; i++) {
-          const name = names[i];
-          if (name === 'HEAD') continue;
-          const hash = fs.readFileSync(path.join(this._refsDir, dir, name), 'utf8').trim();
-          map.set(prefix + name, hash); 
+        const pathes = readFilePathesSync(path.join(this._refsDir, dir));
+        for (let i = 0; i < pathes.length; i++) {
+          const p = pathes[i];
+          if (p === 'HEAD') continue;
+          const hash = fs.readFileSync(path.join(this._refsDir, dir, p), 'utf8').trim();
+          map.set(prefix + p, hash); 
         }
       } catch (e) { }
       return map;
@@ -209,7 +209,7 @@ export class Repository {
 
     try {
       const s = fs.readFileSync(path.join(this.gitDir, 'packed-refs'), 'utf8');
-      addInfoRefs(s, branchMap, tagMap, remoteBranchMap);
+      addPackedRefs(s, branchMap, tagMap, remoteBranchMap);
     } catch (e) { }
 
     this._refs = {
@@ -404,7 +404,7 @@ export class Repository {
   }
 }
 
-function addInfoRefs(s: string, branchMap: StringMap, tagMap: StringMap, remoteBranchMap: StringMap) {
+function addPackedRefs(s: string, branchMap: StringMap, tagMap: StringMap, remoteBranchMap: StringMap) {
   const _tagMap: StringMap = new Map();
   const lines = s.trim().split('\n').forEach((line: string) => {
     const m = line.match(/([a-f\d]{40}) refs\/(heads|remotes|tags)\/(.+)/);
@@ -416,4 +416,34 @@ function addInfoRefs(s: string, branchMap: StringMap, tagMap: StringMap, remoteB
       case 'tags': !tagMap.has(name) && tagMap.set(name, hash); break;
     }
   });
+}
+
+async function readFilePathes(dir: string) {
+  const pathes: string[] = [];
+  async function _getFilePathes(dir: string) {
+    let names = await readDirAsync(dir);
+    for (let i = 0; i < names.length; i++) {
+      const p = path.join(dir, names[i]);
+      const stats = await statAsync(p);
+      if (stats.isFile()) pathes.push(p);
+      if (stats.isDirectory()) await _getFilePathes(p);
+    }
+  }
+  await _getFilePathes(dir);
+  return pathes.map(p => p.slice(dir.length + 1));
+}
+
+function readFilePathesSync(dir: string) {
+  const pathes: string[] = [];
+  function _getFilePathes(dir: string) {
+    let names = fs.readdirSync(dir);
+    for (let i = 0; i < names.length; i++) {
+      const p = path.join(dir, names[i]);
+      const stats = fs.statSync(p);
+      if (stats.isFile()) pathes.push(p);
+      if (stats.isDirectory()) _getFilePathes(p);
+    }
+  }
+  _getFilePathes(dir);
+  return pathes.map(p => p.slice(dir.length + 1));
 }
