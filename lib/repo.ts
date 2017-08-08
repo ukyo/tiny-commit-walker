@@ -248,7 +248,7 @@ export class Repository {
 
     const s = (await readFileAsync(path.join(this.gitDir, 'HEAD'), 'utf8')).trim();
     if (s.startsWith('ref')) {
-      const name = s.split('/').pop() as string;
+      const name = (s.match(/^ref: refs\/heads\/(.+)$/) as string[])[1];
       return {
         type: 'branch',
         branch: await this._readRef('heads', name),
@@ -271,7 +271,7 @@ export class Repository {
 
     const s = fs.readFileSync(path.join(this.gitDir, 'HEAD'), 'utf8').trim();
     if (s.startsWith('ref')) {
-      const name = s.split('/').pop() as string;
+      const name = (s.match(/^ref: refs\/heads\/(.+)$/) as string[])[1];
       return {
         type: 'branch',
         branch: this._readRefSync('heads', name),
