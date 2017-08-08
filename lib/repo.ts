@@ -418,6 +418,11 @@ function addPackedRefs(s: string, branchMap: StringMap, tagMap: StringMap, remot
   });
 }
 
+function normalizePath(dir: string, pathes: string[]) {
+  pathes = pathes.map(p => p.slice(dir.length + 1));
+  return path.sep === '/' ? pathes : pathes.map(p => p.replace(/\\/g, '/'));
+}
+
 async function readFilePathes(dir: string) {
   const pathes: string[] = [];
   async function _getFilePathes(dir: string) {
@@ -430,7 +435,7 @@ async function readFilePathes(dir: string) {
     }
   }
   await _getFilePathes(dir);
-  return pathes.map(p => p.slice(dir.length + 1));
+  return normalizePath(dir, pathes);
 }
 
 function readFilePathesSync(dir: string) {
@@ -445,5 +450,5 @@ function readFilePathesSync(dir: string) {
     }
   }
   _getFilePathes(dir);
-  return pathes.map(p => p.slice(dir.length + 1));
+  return normalizePath(dir, pathes);
 }
