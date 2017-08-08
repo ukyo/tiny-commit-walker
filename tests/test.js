@@ -28,6 +28,42 @@ test('find gitDir sync (failed)', t => {
   t.is(gitDir, undefined);
 });
 
+async function testReadCommitByBranch(t, repo) {
+  t.truthy(await repo.readCommitByBranch('master'));
+  t.truthy(await repo.readCommitByBranch('master', ['heads', 'remotes']));
+  t.truthy(await repo.readCommitByBranch('master', ['heads']));
+  t.truthy(await repo.readCommitByBranch('master', 'heads'));
+  await t.throws(repo.readCommitByBranch('master', ['remotes']));
+  await t.throws(repo.readCommitByBranch('master', 'remotes'));
+  t.truthy(await repo.readCommitByBranch('origin/master'));
+  t.truthy(await repo.readCommitByBranch('origin/master', ['heads', 'remotes']));
+  t.truthy(await repo.readCommitByBranch('origin/master', ['remotes']));
+  t.truthy(await repo.readCommitByBranch('origin/master', 'remotes'));
+  await t.throws(repo.readCommitByBranch('origin/master', ['heads']));
+  await t.throws(repo.readCommitByBranch('origin/master', 'heads'));
+}
+
+test('read commit by branch', async t => await testReadCommitByBranch(t, repo1));
+test('read commit by branch (packed)', async t => await testReadCommitByBranch(t, repo1Packed));
+
+function testReadCommitByBranchSync(t, repo) {
+  t.truthy(repo.readCommitByBranchSync('master'));
+  t.truthy(repo.readCommitByBranchSync('master', ['heads', 'remotes']));
+  t.truthy(repo.readCommitByBranchSync('master', ['heads']));
+  t.truthy(repo.readCommitByBranchSync('master', 'heads'));
+  t.throws(() => repo.readCommitByBranchSync('master', ['remotes']));
+  t.throws(() => repo.readCommitByBranchSync('master', 'remotes'));
+  t.truthy(repo.readCommitByBranchSync('origin/master'));
+  t.truthy(repo.readCommitByBranchSync('origin/master', ['heads', 'remotes']));
+  t.truthy(repo.readCommitByBranchSync('origin/master', ['remotes']));
+  t.truthy(repo.readCommitByBranchSync('origin/master', 'remotes'));
+  t.throws(() => repo.readCommitByBranchSync('origin/master', ['heads']));
+  t.throws(() => repo.readCommitByBranchSync('origin/master', 'heads'));
+}
+
+test('read commit by branch', async t => await testReadCommitByBranch(t, repo1));
+test('read commit by branch (packed)', async t => await testReadCommitByBranch(t, repo1Packed));
+
 async function testReadBranches(t, repo) {
   const branches = await repo.readBranches();
   t.is(branches.length, 6);

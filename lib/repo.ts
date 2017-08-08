@@ -348,23 +348,33 @@ export class Repository {
    * const originMasterCommit = await repo.readCommitByBranch('origin/master');
    * ```
    */
-  async readCommitByBranch(branchName: string): Promise<Commit> {
-    try {
-      return (await this._readRef('heads', branchName)).commit;
-    } catch (e) {
-      return (await this._readRef('remotes', branchName)).commit;
+  async readCommitByBranch(branchName: string, scope: BRANCH_DIR[] | BRANCH_DIR = ['heads', 'remotes']): Promise<Commit> {
+    if (!Array.isArray(scope)) scope = [scope];
+    let err: Error | null = null;
+    for (let i = 0; i < scope.length; i++) {
+      try {
+        return (await this._readRef(scope[i], branchName)).commit;
+      } catch (e) {
+        err = e;
+      }
     }
+    throw err;
   }
 
   /**
    * Read a commit by branch name sync.
    */
-  readCommitByBranchSync(branchName: string): Commit {
-    try {
-      return this._readRefSync('heads', branchName).commit;
-    } catch (e) {
-      return this._readRefSync('remotes', branchName).commit;
+  readCommitByBranchSync(branchName: string, scope: BRANCH_DIR[] | BRANCH_DIR = ['heads', 'remotes']): Commit {
+    if (!Array.isArray(scope)) scope = [scope];
+    let err: Error | null = null;
+    for (let i = 0; i < scope.length; i++) {
+      try {
+        return this._readRefSync(scope[i], branchName).commit;
+      } catch (e) {
+        err = e;
+      }
     }
+    throw err;
   }
 
   /**
