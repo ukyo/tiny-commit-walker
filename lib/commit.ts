@@ -89,9 +89,13 @@ export class Commit {
    * 
    * // or set a parent hash manually.
    * parentCommit = await commit.walk(commit.parentHash[1]);
+   * 
+   * // same mean
+   * parentCommit = await commit.walk(1);
    * ```
    */
-  async walk(parentHash = this.baseParentHash) {
+  async walk(parentHash: number | string = 0) {
+    if (typeof parentHash === 'number') parentHash = this.parentHashes[parentHash];
     return await Commit.readCommit(this.gitDir, parentHash, this._packs);
   }
 
@@ -103,7 +107,8 @@ export class Commit {
    * parentCommit = commit.walkSync(commit.parentHash[1]);
    * ```
    */
-  walkSync(parentHash = this.baseParentHash) {
+  walkSync(parentHash: number | string = 0) {
+    if (typeof parentHash === 'number') parentHash = this.parentHashes[parentHash];
     return Commit.readCommitSync(this.gitDir, parentHash, this._packs);
   }
 

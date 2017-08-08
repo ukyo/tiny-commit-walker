@@ -61,8 +61,8 @@ function testReadCommitByBranchSync(t, repo) {
   t.throws(() => repo.readCommitByBranchSync('origin/master', 'heads'));
 }
 
-test('read commit by branch sync', async t => await testReadCommitByBranch(t, repo1));
-test('read commit by branch sync (packed)', async t => await testReadCommitByBranch(t, repo1Packed));
+test('read commit by branch sync', t => testReadCommitByBranchSync(t, repo1));
+test('read commit by branch sync (packed)', t => testReadCommitByBranchSync(t, repo1Packed));
 
 async function testReadBranches(t, repo) {
   const branches = await repo.readBranches();
@@ -425,3 +425,37 @@ function testWalkCommitsSync(t, repo) {
 test('walk commits sync', t => testWalkCommitsSync(t, repo1));
 test('walk commits sync (packed)', t => testWalkCommitsSync(t, repo1Packed));
 test('walk commits sync (v1 packed)', t => testWalkCommitsSync(t, repo1Packed));
+
+async function testWalkCommitsByIndex(t, repo) {
+  const branches = await repo.readBranches();
+  const head = await repo.readHead();
+  let commit = head.branch.commit;
+  let c = await commit.walk();
+  t.is(c.hash, commit.parentHashes[0]);
+  c = await commit.walk(0);
+  t.is(c.hash, commit.parentHashes[0]);
+  c = await commit.walk(1);
+  t.is(c.hash, commit.parentHashes[1]);
+  c = await commit.walk(2);
+  t.is(c.hash, commit.parentHashes[2]);
+}
+
+test('walk commits by index', t => testWalkCommitsByIndex(t, repo1));
+test('walk commits by index (packed)', t => testWalkCommitsByIndex(t, repo1Packed));
+
+function testWalkCommitsByIndexSync(t, repo) {
+  const branches = repo.readBranchesSync();
+  const head = repo.readHeadSync();
+  let commit = head.branch.commit;
+  let c = commit.walkSync();
+  t.is(c.hash, commit.parentHashes[0]);
+  c = commit.walkSync(0);
+  t.is(c.hash, commit.parentHashes[0]);
+  c = commit.walkSync(1);
+  t.is(c.hash, commit.parentHashes[1]);
+  c = commit.walkSync(2);
+  t.is(c.hash, commit.parentHashes[2]);
+}
+
+test('walk commits by index sync', t => testWalkCommitsByIndexSync(t, repo1));
+test('walk commits by index sync (packed)', t => testWalkCommitsByIndexSync(t, repo1Packed));
