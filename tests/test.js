@@ -61,8 +61,8 @@ function testReadCommitByBranchSync(t, repo) {
   t.throws(() => repo.readCommitByBranchSync('origin/master', 'heads'));
 }
 
-test('read commit by branch', async t => await testReadCommitByBranch(t, repo1));
-test('read commit by branch (packed)', async t => await testReadCommitByBranch(t, repo1Packed));
+test('read commit by branch sync', async t => await testReadCommitByBranch(t, repo1));
+test('read commit by branch sync (packed)', async t => await testReadCommitByBranch(t, repo1Packed));
 
 async function testReadBranches(t, repo) {
   const branches = await repo.readBranches();
